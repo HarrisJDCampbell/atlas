@@ -1,0 +1,54 @@
+{
+  "id": "meeting-rooms",
+  "title": "Meeting Rooms II",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "statement": "Each meeting is given as `[start, end]` and occupies its room for the **half-open** time range `[start, end)`: a meeting ending at 5 frees its room for one starting at 5.\n\nGiven the list of meetings in any order, return the minimum number of rooms needed so that no two meetings share a room at the same time. Return `0` for an empty list.",
+  "examples": [
+    {
+      "input": "intervals = [[9, 12], [10, 11], [11, 13]]",
+      "output": "2"
+    },
+    {
+      "input": "intervals = [[1, 5], [5, 8], [8, 9]]",
+      "output": "1"
+    },
+    {
+      "input": "intervals = [[1, 4], [2, 5], [3, 6]]",
+      "output": "3"
+    }
+  ],
+  "constraints": [
+    "0 ≤ intervals.length ≤ 10^5",
+    "0 ≤ start < end ≤ 10^6"
+  ],
+  "params": [
+    "intervals"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int minMeetingRooms(int[][] intervals) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "n"
+  },
+  "benchN": "intervals.length",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "The number of rooms you need is the largest number of meetings happening at the same moment. When does that number change?",
+    "It only changes when a meeting starts (+1) or ends (-1). Process those events in time order — either with a min-heap of end times for the rooms in use, or with the starts and ends sorted separately.",
+    "Sort the start times and the end times into two arrays. Walk the starts with a pointer j into the ends: if start < ends[j], every room is still busy, so open a new one; otherwise a meeting has finished, so reuse its room and advance j. Because of the half-open ranges, start == ends[j] means the room is free."
+  ],
+  "followups": [
+    "Do the heap version: sort by start and keep a PriorityQueue of end times. When is it nicer than two sorted arrays?",
+    "How would you also return which room each meeting is assigned to?",
+    "If the times were small integers (say minutes in a day), how could you do this in O(n + T) without sorting?"
+  ],
+  "explain": "The answer is the maximum number of meetings overlapping at any instant. Sort starts and ends separately. Sweep the starts in order with a pointer j into the sorted ends: if the next start is before ends[j], no room has freed up yet, so open one; otherwise the meeting ending at ends[j] has left, so take its room and advance j. Using < rather than <= implements the half-open rule, so back-to-back meetings share a room. Pairing starts with ends from different meetings is fine because only the counts matter, not which meeting leaves. O(n log n) time, O(n) space. The heap version (sort by start, PriorityQueue<Integer> of end times, poll while peek() <= start) has the same complexity and also tells you which room is reused. Arrays.sort on int[] avoids boxing.",
+  "tags": [
+    "sweep line",
+    "two pointers",
+    "min-heap"
+  ]
+}

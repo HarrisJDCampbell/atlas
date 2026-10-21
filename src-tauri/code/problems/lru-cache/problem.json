@@ -1,0 +1,29 @@
+{
+  "id": "lru-cache",
+  "title": "LRU Cache",
+  "pattern": "design",
+  "difficulty": "medium",
+  "statement": "Design a cache with a fixed capacity that evicts the **least recently used** key when it is full.\n\nImplement `LRUCache`:\n- `LRUCache(int capacity)` creates an empty cache. `capacity` is positive.\n- `int get(int key)` returns the key's value, or `-1` if the key isn't present. A successful `get` counts as a use.\n- `void put(int key, int value)` inserts or updates the key. This counts as a use. If inserting a new key would exceed the capacity, first evict the least recently used key.\n\n`get` and `put` must each run in **O(1)** average time.\n\nThe tests replay a list of operations: `ops[i]` is the method name and `args[i]` its arguments. The expected output has `null` for the constructor and for each `put`.",
+  "examples": [
+    { "input": "ops = [\"LRUCache\", \"put\", \"put\", \"get\", \"put\", \"get\", \"put\", \"get\", \"get\", \"get\"], args = [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]", "output": "[null, null, null, 1, null, -1, null, -1, 3, 4]" }
+  ],
+  "constraints": ["1 ≤ capacity ≤ 3000", "up to 2·10^5 calls to get and put"],
+  "params": ["ops", "args"],
+  "classes": ["LRUCache"],
+  "starter": "import java.util.*;\n\nclass LRUCache {\n\n    public LRUCache(int capacity) {\n\n    }\n\n    public int get(int key) {\n        return -1;\n    }\n\n    public void put(int key, int value) {\n\n    }\n}\n",
+  "target": { "time": "n", "space": "n", "note": "O(1) per operation; the benchmark times n operations" },
+  "benchN": "number of operations",
+  "bench": { "min": 4096, "max": 1048576 },
+  "hints": [
+    "You need two things in O(1): look up a key, and know which key was used longest ago. Can one data structure do both?",
+    "A HashMap gives you the lookup. A doubly linked list ordered by recency lets you move any node to the front, and evict from the back, in O(1) — as long as the map points at the nodes.",
+    "Map<Integer, Node> plus a doubly linked list with dummy head and tail sentinels. On get or put, unlink the node and push it to the front. On overflow, remove tail.prev from both the list and the map — so the node must store its key."
+  ],
+  "followups": [
+    "Java has LinkedHashMap with accessOrder=true and removeEldestEntry. When would you use it in an interview, and when would the interviewer object?",
+    "How would you make this thread-safe? What does a single lock cost you?",
+    "How would you change it to LFU — evict the least frequently used key?"
+  ],
+  "explain": "Pair a HashMap from key to node with a doubly linked list kept in recency order. Dummy head and tail sentinels remove every null check. get moves the node to the front. put updates it, or inserts a new node at the front, evicting tail.prev (and its map entry) when over capacity — which is why each node stores its own key. Every operation is O(1). In Java, LinkedHashMap(capacity, 0.75f, true) with removeEldestEntry overridden is the library version.",
+  "tags": ["hashmap", "doubly linked list", "sentinel nodes"]
+}

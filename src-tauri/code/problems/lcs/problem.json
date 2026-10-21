@@ -1,0 +1,56 @@
+{
+  "id": "lcs",
+  "title": "Longest Common Subsequence",
+  "pattern": "dp2",
+  "difficulty": "medium",
+  "statement": "A **subsequence** of a string is what's left after deleting zero or more characters without reordering the rest: `\"ace\"` is a subsequence of `\"abcde\"`, but `\"aec\"` is not.\n\nGiven two strings `text1` and `text2`, return the length of the longest string that is a subsequence of **both**. Return `0` if they share no characters.",
+  "examples": [
+    {
+      "input": "text1 = \"kitten\", text2 = \"sitting\"",
+      "output": "4"
+    },
+    {
+      "input": "text1 = \"stone\", text2 = \"longest\"",
+      "output": "3"
+    },
+    {
+      "input": "text1 = \"abc\", text2 = \"xyz\"",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 ≤ text1.length, text2.length ≤ 1000",
+    "both strings contain only lowercase English letters"
+  ],
+  "params": [
+    "text1",
+    "text2"
+  ],
+  "starter": "class Solution {\n    public int longestCommonSubsequence(String text1, String text2) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n^2",
+    "space": "n",
+    "note": "O(m·n) time; one rolling row gives O(min(m, n)) space"
+  },
+  "benchN": "length of each string",
+  "bench": {
+    "min": 256,
+    "max": 8192
+  },
+  "hints": [
+    "Look at the last character of each string. If they match, what does that tell you? If they don't, which of the two characters can't both be in the answer?",
+    "Define dp[i][j] as the LCS length of the first i characters of text1 and the first j of text2. Every cell depends only on its left, upper and upper-left neighbours, so a 2-D table filled row by row answers every subproblem once.",
+    "If text1[i-1] == text2[j-1], dp[i][j] = dp[i-1][j-1] + 1; otherwise dp[i][j] = max(dp[i-1][j], dp[i][j-1]). Row 0 and column 0 are zero, and the answer is dp[m][n]. Since each row only reads the previous one, two int arrays are enough."
+  ],
+  "followups": [
+    "How would you reconstruct the actual subsequence, not just its length?",
+    "Can you get the space down to O(min(m, n))? What do you lose by doing that?",
+    "How does this relate to computing a line-by-line diff of two files?"
+  ],
+  "explain": "Let dp[i][j] be the LCS of the prefixes text1[0..i) and text2[0..j). If the last characters match, the best answer uses them both: dp[i-1][j-1] + 1. If not, at least one of them is unused, so take the better of dropping either: max(dp[i-1][j], dp[i][j-1]). Empty prefixes give 0. Fill row by row and return dp[m][n]: O(m·n) time. Each row reads only the one above, so two int[n+1] arrays swapped after each row give O(n) space. Plain recursion without memoisation is exponential because the same (i, j) pair is reached by many paths. In Java, read characters with charAt rather than calling toCharArray inside the loop.",
+  "tags": [
+    "2-D dp",
+    "string dp",
+    "rolling array"
+  ]
+}

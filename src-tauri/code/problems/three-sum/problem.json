@@ -1,0 +1,30 @@
+{
+  "id": "three-sum",
+  "title": "3Sum",
+  "pattern": "two-pointers",
+  "difficulty": "medium",
+  "statement": "Given an integer array `nums`, return every **distinct** triplet of values `[a, b, c]` such that `a + b + c == 0`, where the three values come from three different positions in the array.\n\nTwo triplets count as the same if they contain the same values, so the answer must not contain duplicates such as `[-1, 0, 1]` and `[0, 1, -1]`. You may return the triplets in any order, and the values inside each triplet in any order. Return an empty list if there are none.",
+  "examples": [
+    { "input": "nums = [-1, 0, 1, 2, -1, -4]", "output": "[[-1, -1, 2], [-1, 0, 1]]" },
+    { "input": "nums = [0, 1, 1]", "output": "[]" },
+    { "input": "nums = [0, 0, 0]", "output": "[[0, 0, 0]]" }
+  ],
+  "constraints": ["3 ≤ nums.length ≤ 3000", "-10^5 ≤ nums[i] ≤ 10^5"],
+  "params": ["nums"],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> threeSum(int[] nums) {\n        return new ArrayList<>();\n    }\n}\n",
+  "target": { "time": "n^2", "space": "1", "note": "O(1) extra besides sorting and the output" },
+  "benchN": "nums.length",
+  "bench": { "min": 512, "max": 16384 },
+  "hints": [
+    "Three nested loops are O(n^3), and removing duplicates afterwards is painful. If you fix the first value a, what problem is left for b and c?",
+    "Sort the array first. With a fixed, you need two values in the rest of the array summing to -a, and on a sorted array two pointers from both ends find every such pair in one linear sweep. Sorting also puts equal values next to each other, which makes duplicates easy to skip.",
+    "Sort. For each i, skipping i when nums[i] == nums[i-1]: set lo = i+1, hi = n-1; move lo up if the sum is too small and hi down if too large; on a hit, record it, then move both pointers past any repeats of their values. Stop early once nums[i] > 0."
+  ],
+  "followups": [
+    "Why does the sort not change the overall complexity?",
+    "How would you solve it with a HashSet instead of two pointers, and what makes de-duplication harder that way?",
+    "Generalise it: how would you write k-sum, and what is its complexity?"
+  ],
+  "explain": "Sort the array (O(n log n)), then fix the smallest element nums[i] and solve two-sum on the sorted suffix with two pointers: lo = i+1, hi = n-1, moving lo right when the sum is below zero and hi left when it's above. The sorted order is what makes this correct. If the sum is too small, nums[lo] can't be part of any solution with a smaller hi, so discarding it is safe. Duplicates are avoided by skipping a nums[i] equal to its predecessor and, after each hit, moving lo and hi past repeats. It runs in O(n^2) total with O(1) extra space besides the sort and the output; you can break as soon as nums[i] > 0. In Java, List.of(a, b, c) builds each triplet, and summing in long avoids any doubt about overflow.",
+  "tags": ["sorting", "two pointers", "deduplication"]
+}

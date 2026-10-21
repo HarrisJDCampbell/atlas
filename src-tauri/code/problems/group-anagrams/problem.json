@@ -1,0 +1,30 @@
+{
+  "id": "group-anagrams",
+  "title": "Group Anagrams",
+  "pattern": "hashing",
+  "difficulty": "medium",
+  "statement": "You get an array of lowercase strings `strs`. Two strings are **anagrams** if one is a rearrangement of the other's letters (same letters, same counts). Partition `strs` into groups so that every group contains exactly the strings that are anagrams of one another, and return the groups.\n\nEvery input string must appear in exactly one group, duplicates included. The order of the groups, and the order of strings inside a group, don't matter.",
+  "examples": [
+    { "input": "strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]", "output": "[[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]" },
+    { "input": "strs = [\"\"]", "output": "[[\"\"]]" },
+    { "input": "strs = [\"a\"]", "output": "[[\"a\"]]" }
+  ],
+  "constraints": ["1 ≤ strs.length ≤ 10^4", "0 ≤ strs[i].length ≤ 100", "strs[i] contains only lowercase English letters"],
+  "params": ["strs"],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public List<List<String>> groupAnagrams(String[] strs) {\n        return new ArrayList<>();\n    }\n}\n",
+  "target": { "time": "n", "space": "n", "note": "O(n · k log k) for strings of length k; the benchmark holds k fixed at 7" },
+  "benchN": "strs.length",
+  "bench": { "min": 1024, "max": 524288 },
+  "hints": [
+    "Comparing every string with every other string is quadratic. Is there something you can compute from one string alone that is identical for all of its anagrams and different for everything else?",
+    "Give each string a canonical form — its letters sorted, or its 26 letter counts — and use that as a HashMap key. All anagrams land on the same key.",
+    "Map<String, List<String>>: for each string, build the key (sort its char array, or encode the counts), computeIfAbsent the list, append the original string. The map's values are the answer."
+  ],
+  "followups": [
+    "Sorting costs O(k log k) per string. How do you get the key in O(k), and how do you turn 26 counts into a key that can't collide?",
+    "What if the strings could contain any Unicode characters?",
+    "How would you do this if strs were too large for one machine?"
+  ],
+  "explain": "Anagrams share a canonical form, so hash on it. For each string, sort its characters (Arrays.sort on toCharArray, then new String) and use the result as a key in a HashMap<String, List<String>>; append the original string to that key's list. Return new ArrayList<>(map.values()). That's O(n · k log k) time and O(n · k) space for n strings of length up to k. An O(n · k) variant uses a 26-int count array as the key — but an int[] has identity hashCode in Java, so you must turn it into a String (e.g. counts joined with '#') or use Arrays.toString. Pairwise comparison would be O(n^2 · k).",
+  "tags": ["hashmap", "canonical key", "sorting"]
+}

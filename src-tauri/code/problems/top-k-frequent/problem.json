@@ -1,0 +1,57 @@
+{
+  "id": "top-k-frequent",
+  "title": "Top K Frequent Elements",
+  "pattern": "heap",
+  "difficulty": "medium",
+  "statement": "Given an integer array `nums` and an integer `k`, return the `k` values that occur **most often**.\n\nThe answer is guaranteed to be unique: the kth most frequent value occurs strictly more often than every value outside the answer. Return the values in **any order**.",
+  "examples": [
+    {
+      "input": "nums = [1, 1, 1, 2, 2, 3], k = 2",
+      "output": "[1, 2]"
+    },
+    {
+      "input": "nums = [1], k = 1",
+      "output": "[1]"
+    },
+    {
+      "input": "nums = [4, 1, -1, 2, -1, 2, 3, -1], k = 2",
+      "output": "[-1, 2]"
+    }
+  ],
+  "constraints": [
+    "1 ≤ nums.length ≤ 10^5",
+    "-10^4 ≤ nums[i] ≤ 10^4",
+    "1 ≤ k ≤ number of distinct values"
+  ],
+  "params": [
+    "nums",
+    "k"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int[] topKFrequent(int[] nums, int k) {\n        return new int[0];\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "bucket sort by frequency is O(n); a size-k heap is O(n log k), which interviewers also accept"
+  },
+  "benchN": "nums.length (k = n/64, about 0.11n distinct values)",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "First count how often each value occurs. Now it's a ranking problem over the distinct values: do you need to fully sort them to find the top k?",
+    "Two good options. A min-heap of size k ordered by count keeps the k best seen so far, for O(n log k). Or notice that a count is always between 1 and n, so you can bucket values by count instead of comparing them.",
+    "HashMap<Integer, Integer> of counts. Make an array of n + 1 lists where bucket[c] holds the values seen exactly c times. Walk c from n down to 1, collecting values until you have k."
+  ],
+  "followups": [
+    "Compare the heap and bucket approaches. When would you choose each one, for example when k is tiny or the values are streaming in?",
+    "What changes if ties are allowed at the boundary and you must break them by the smaller value?",
+    "How would you find the top k most frequent words in a file too big to fit in memory?"
+  ],
+  "explain": "Count occurrences with a HashMap (merge(x, 1, Integer::sum)). Then bucket the distinct values by count: bucket[c] lists the values that appear exactly c times, and c ranges from 1 to n, so the array has n + 1 slots. Scanning buckets from high to low and collecting until you have k values gives the answer in O(n) time and O(n) space, with no comparisons at all. The heap alternative keeps a PriorityQueue of at most k values ordered by count (a min-heap, so the least frequent is evicted), for O(n log k). It's the better choice when k is small or the data streams in. In Java, generic array creation needs new List[n + 1] with an unchecked cast, or use a List<List<Integer>> instead.",
+  "tags": [
+    "hashmap",
+    "bucket sort",
+    "heap"
+  ]
+}

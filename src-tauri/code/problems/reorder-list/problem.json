@@ -1,0 +1,30 @@
+{
+  "id": "reorder-list",
+  "title": "Reorder List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "statement": "You are given the `head` of a non-empty singly linked list `L0 → L1 → … → Ln-1 → Ln`.\n\nRearrange it **in place** so that it alternates between the front and the back:\n\n`L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → …`\n\nMove the existing nodes by rewiring `next` pointers; don't change any node's `val`. The method returns nothing — the tests read the list starting from the `head` they passed in.",
+  "examples": [
+    { "input": "head = [10, 20, 30, 40]", "output": "[10, 40, 20, 30]" },
+    { "input": "head = [1, 2, 3, 4, 5]", "output": "[1, 5, 2, 4, 3]" },
+    { "input": "head = [8]", "output": "[8]" }
+  ],
+  "constraints": ["1 ≤ number of nodes ≤ 5·10^4", "-1000 ≤ Node.val ≤ 1000"],
+  "params": ["head"],
+  "starter": "/**\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public void reorderList(ListNode head) {\n\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "the benchmark time includes building the input list, which is also linear" },
+  "benchN": "number of nodes",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "The new order takes nodes from the front going forward and from the back going backward. A singly linked list can't walk backward — how could you make the back half walk forward instead?",
+    "Split the list at the middle (slow/fast pointers), reverse the second half, and now you have two forward lists to interleave.",
+    "Find the middle so the first half has the extra node when the length is odd. Cut after the middle, reverse the second half in place, then alternate: take one node from the first list, one from the reversed second, until the second runs out."
+  ],
+  "followups": [
+    "The easy way is to copy the nodes into an ArrayList and use two indices. What does that cost, and when is it the better choice?",
+    "How would you check whether a linked list is a palindrome in O(1) extra space? Which parts of this solution carry over?",
+    "Could you restore the original list afterwards?"
+  ],
+  "explain": "This is three classic linked-list moves chained together. First, slow/fast pointers find the middle: when fast can't take two more steps, slow is the last node of the first half. Second, cut there (slow.next = null — forgetting this makes a cycle) and reverse the second half in place. Third, weave: save both lists' next nodes, point a at b and b at a's old next, then advance. For n nodes the first half has ceil(n/2) and the reversed second half floor(n/2), so the weave stops when the second list runs out. Each step is linear: O(n) time, O(1) extra space. Copying the nodes into an ArrayList and pairing the ends is also O(n) but uses O(n) space; walking to the tail for every step is O(n^2).",
+  "tags": ["fast and slow pointers", "reverse in place", "merge"]
+}

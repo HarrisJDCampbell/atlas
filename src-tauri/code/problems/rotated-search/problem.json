@@ -1,0 +1,30 @@
+{
+  "id": "rotated-search",
+  "title": "Search in Rotated Sorted Array",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "statement": "An array of **distinct** integers was sorted in increasing order and then rotated at some unknown pivot: a prefix was cut off and moved to the end. For example `[3, 7, 9, 15, 18, 22]` might become `[15, 18, 22, 3, 7, 9]`. The rotation may also be zero, leaving the array fully sorted.\n\nGiven the rotated array `nums` and an integer `target`, return the index of `target` in `nums`, or `-1` if it isn't there.\n\nYour solution must run in **O(log n)** time.",
+  "examples": [
+    { "input": "nums = [15, 18, 22, 3, 7, 9], target = 7", "output": "4" },
+    { "input": "nums = [15, 18, 22, 3, 7, 9], target = 10", "output": "-1" },
+    { "input": "nums = [4], target = 4", "output": "0" }
+  ],
+  "constraints": ["1 ≤ nums.length ≤ 5000", "-2^31 ≤ nums[i], target ≤ 2^31 - 1", "all values in nums are distinct"],
+  "params": ["nums", "target"],
+  "starter": "class Solution {\n    public int search(int[] nums, int target) {\n        return -1;\n    }\n}\n",
+  "target": { "time": "log n", "space": "1", "note": "O(log n) can't be told apart from O(n) at these sizes, so there's no benchmark — the requirement is checked by reading your code" },
+  "benchN": "nums.length",
+  "bench": null,
+  "hints": [
+    "Split the array at any midpoint. Can both halves be unsorted, or is at least one of them always a normal sorted run?",
+    "At least one half is always sorted, and you can tell which by comparing nums[lo] with nums[mid]. For a sorted half, a range check tells you whether the target can be inside it.",
+    "Standard binary search on lo..hi. If nums[mid] is the target, return mid. If nums[lo] <= nums[mid], the left half is sorted: go left when nums[lo] <= target < nums[mid], otherwise go right. Otherwise the right half is sorted: go right when nums[mid] < target <= nums[hi], otherwise go left."
+  ],
+  "followups": [
+    "How would you find the rotation point (the index of the minimum) in O(log n)?",
+    "What breaks if the array may contain duplicates, and what's the worst-case time then?",
+    "Could you solve it by finding the pivot first and then running an ordinary binary search? Compare the two approaches."
+  ],
+  "explain": "Run binary search, but at each step decide which half is guaranteed sorted. If nums[lo] <= nums[mid], the run lo..mid has no rotation break, so the target is in it exactly when nums[lo] <= target < nums[mid]; otherwise mid..hi is sorted and the target is in it exactly when nums[mid] < target <= nums[hi]. Keep the half that could contain the target and discard the other. Each step halves the range: O(log n) time, O(1) space. Use <= in nums[lo] <= nums[mid] so the case lo == mid (two elements left) is treated as sorted. Compute mid as lo + (hi - lo) / 2 so lo + hi can't overflow.",
+  "tags": ["binary search", "rotated array"]
+}

@@ -1,0 +1,310 @@
+[
+  {
+    "id": "hashing",
+    "name": "Arrays & Hashing",
+    "short": "Hashing",
+    "idea": "Trade memory for time: put what you've already seen into a HashMap or HashSet so each later lookup is O(1) instead of another scan. Most problems come down to choosing the key, either the complement you're waiting for (two-sum) or a canonical form shared by everything in a group (sorted letters or a count signature).",
+    "signals": [
+      "find a pair that sums to a target",
+      "group items that are anagrams or equivalent",
+      "contains duplicate / seen before",
+      "count frequencies",
+      "O(n) when the obvious solution is O(n^2)"
+    ],
+    "skeleton": "int[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> seen = new HashMap<>();   // value -> index\n    for (int i = 0; i < nums.length; i++) {\n        Integer j = seen.get(target - nums[i]);\n        if (j != null) return new int[]{j, i};\n        seen.put(nums[i], i);                       // insert after the check\n    }\n    return new int[0];\n}\n\nList<List<String>> groupAnagrams(String[] strs) {\n    Map<String, List<String>> groups = new HashMap<>();\n    for (String s : strs) {\n        int[] cnt = new int[26];\n        for (char c : s.toCharArray()) cnt[c - 'a']++;\n        groups.computeIfAbsent(Arrays.toString(cnt), k -> new ArrayList<>()).add(s);\n    }\n    return new ArrayList<>(groups.values());\n}",
+    "pitfalls": [
+      "Using an int[] or char[] as a map key: arrays use identity equals/hashCode, so convert to a String, List or record first.",
+      "Comparing two Integer counts with == (works up to 127, fails above).",
+      "Inserting before checking in two-sum, so an element pairs with itself when target == 2 * x.",
+      "int c = map.get(k) on a missing key throws NullPointerException. Use getOrDefault or merge.",
+      "Assuming HashMap iteration order is insertion or sorted order. Use LinkedHashMap or TreeMap when order matters."
+    ],
+    "complexity": "O(n) time on average, O(n) extra space"
+  },
+  {
+    "id": "two-pointers",
+    "name": "Two Pointers",
+    "short": "2 Pointers",
+    "idea": "Move two indices through the array instead of trying every pair. With opposite ends on sorted input, each comparison tells you which pointer can move without losing an answer. With same-direction pointers, a slow write index and a fast read index let you compact or partition in place.",
+    "signals": [
+      "sorted array, find a pair or triple with a target sum",
+      "palindrome check",
+      "remove duplicates in place / O(1) extra space",
+      "container / area between two lines",
+      "merge two sorted arrays"
+    ],
+    "skeleton": "int[] pairSum(int[] a, int target) {            // a is sorted\n    int l = 0, r = a.length - 1;\n    while (l < r) {\n        int sum = a[l] + a[r];\n        if (sum == target) return new int[]{l, r};\n        if (sum < target) l++;\n        else r--;\n    }\n    return new int[0];\n}\n\nint dedupe(int[] a) {                           // keeps one copy of each value, returns new length\n    int w = 0;\n    for (int r = 0; r < a.length; r++)\n        if (w == 0 || a[r] != a[w - 1]) a[w++] = a[r];\n    return w;\n}\n\nboolean isPalindrome(String s) {\n    for (int l = 0, r = s.length() - 1; l < r; l++, r--)\n        if (s.charAt(l) != s.charAt(r)) return false;\n    return true;\n}",
+    "pitfalls": [
+      "Using opposite-end pointers on unsorted input. Sort first, and remember that sorting loses the original indices.",
+      "In 3Sum, skipping duplicates of the anchor but not of l and r after a match, which produces duplicate triples.",
+      "Writing while (l <= r) when a pair needs two distinct elements, so one element pairs with itself.",
+      "Overflow in a[l] + a[r] near Integer.MAX_VALUE. Use long when the constraints allow it.",
+      "Skipping non-alphanumeric characters without bounds-checking l < r inside the inner while loops."
+    ],
+    "complexity": "O(n) per pass (O(n log n) if you sort first), O(1) extra space"
+  },
+  {
+    "id": "sliding-window",
+    "name": "Sliding Window",
+    "short": "Window",
+    "idea": "Keep a contiguous window [l, r] and its running state (a sum or counts). Extend r by one each step, and move l forward only while the window breaks the constraint. Each index enters and leaves the window once, so a nested-looking loop is still O(n).",
+    "signals": [
+      "longest / shortest substring or subarray such that ...",
+      "at most k distinct / k replacements",
+      "contiguous",
+      "window of size k",
+      "contains all characters of another string"
+    ],
+    "skeleton": "int longestUnique(String s) {\n    int[] count = new int[128];                 // ASCII; use a HashMap for general keys\n    int best = 0;\n    for (int l = 0, r = 0; r < s.length(); r++) {\n        count[s.charAt(r)]++;\n        while (count[s.charAt(r)] > 1) count[s.charAt(l++)]--;\n        best = Math.max(best, r - l + 1);\n    }\n    return best;\n}\n\nint longestAtMostK(int[] a, int k) {            // at most k distinct values\n    Map<Integer, Integer> cnt = new HashMap<>();\n    int best = 0;\n    for (int l = 0, r = 0; r < a.length; r++) {\n        cnt.merge(a[r], 1, Integer::sum);\n        while (cnt.size() > k) {\n            if (cnt.merge(a[l], -1, Integer::sum) == 0) cnt.remove(a[l]);\n            l++;\n        }\n        best = Math.max(best, r - l + 1);\n    }\n    return best;\n}",
+    "pitfalls": [
+      "Not removing keys whose count drops to 0, so map.size() overstates the distinct count.",
+      "Updating the answer before shrinking (for a longest window) or after shrinking (for a shortest window). Decide where the window is valid.",
+      "Off-by-one window length: it's r - l + 1.",
+      "Using int[26] with c - 'a' when the input can contain uppercase letters, digits or spaces. Use int[128].",
+      "Trying a window on arrays with negative numbers for a sum target. Shrinking is no longer monotone, so use prefix sums plus a HashMap."
+    ],
+    "complexity": "O(n) time, O(alphabet) or O(k) space"
+  },
+  {
+    "id": "stack",
+    "name": "Stack",
+    "short": "Stack",
+    "idea": "Use a stack when the most recent unresolved item is the one the current element resolves, as with matching brackets or the next greater element. A monotonic stack holds indices whose values stay sorted. Each new element pops everything it beats, so every index is pushed and popped at most once.",
+    "signals": [
+      "valid parentheses / matching pairs",
+      "next greater or smaller element",
+      "how many days until a warmer temperature",
+      "largest rectangle in a histogram",
+      "evaluate an expression / undo most recent"
+    ],
+    "skeleton": "int[] nextGreater(int[] a) {\n    int[] ans = new int[a.length];\n    Arrays.fill(ans, -1);\n    Deque<Integer> st = new ArrayDeque<>();          // indices; their values decrease\n    for (int i = 0; i < a.length; i++) {\n        while (!st.isEmpty() && a[st.peek()] < a[i]) ans[st.pop()] = a[i];\n        st.push(i);\n    }\n    return ans;\n}\n\nboolean balanced(String s) {\n    Deque<Character> st = new ArrayDeque<>();\n    for (char c : s.toCharArray()) {\n        if (c == '(') st.push(')');\n        else if (c == '[') st.push(']');\n        else if (c == '{') st.push('}');\n        else if (st.isEmpty() || st.pop() != c) return false;\n    }\n    return st.isEmpty();\n}",
+    "pitfalls": [
+      "Using java.util.Stack. It's synchronized and legacy, so use ArrayDeque with push/pop/peek, which all work on the head.",
+      "Pushing values when you need distances or widths. Push indices instead.",
+      "Calling pop() or peek() on an empty ArrayDeque: pop throws NoSuchElementException and peek returns null. Check isEmpty() first.",
+      "Forgetting the final return st.isEmpty(), so input like \"((\" passes.",
+      "Mixing ArrayDeque's stack methods (push/pop) with its queue methods (offer/poll on the other end) by accident."
+    ],
+    "complexity": "O(n) time (each index is pushed and popped once), O(n) space"
+  },
+  {
+    "id": "binary-search",
+    "name": "Binary Search",
+    "short": "Bin Search",
+    "idea": "Halve the search space each step, using any monotone yes/no question, not just 'is this the target?'. The most useful form is the lower bound: the first index where a condition becomes true. Binary search on the answer applies the same loop to a range of candidate answers with a feasibility check.",
+    "signals": [
+      "sorted array, O(log n)",
+      "minimum speed / capacity / time such that ...",
+      "rotated sorted array",
+      "first or last occurrence",
+      "minimise the maximum / maximise the minimum"
+    ],
+    "skeleton": "int lowerBound(int[] a, int target) {           // first i with a[i] >= target, or a.length\n    int lo = 0, hi = a.length;\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (a[mid] < target) lo = mid + 1;\n        else hi = mid;\n    }\n    return lo;\n}\n\nint minSpeed(int[] piles, int h) {              // smallest speed where canFinish is true\n    int lo = 1, hi = Arrays.stream(piles).max().getAsInt();\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (canFinish(piles, mid, h)) hi = mid;\n        else lo = mid + 1;\n    }\n    return lo;\n}\n\nboolean canFinish(int[] piles, int speed, int h) {\n    long hours = 0;\n    for (int p : piles) hours += (p - 1) / speed + 1;   // ceil(p / speed) for p >= 1\n    return hours <= h;\n}",
+    "pitfalls": [
+      "(lo + hi) / 2 overflows for large bounds. Use lo + (hi - lo) / 2.",
+      "Mixing loop styles: while (lo <= hi) with hi = mid, or while (lo < hi) with lo = mid, loops forever.",
+      "Upper-mid case: if the branch is lo = mid, you need mid = lo + (hi - lo + 1) / 2.",
+      "Summing the feasibility count in an int when it can exceed 2^31.",
+      "Assuming Arrays.binarySearch returns the first occurrence, or a valid index when the key is missing (it returns -(insertionPoint) - 1)."
+    ],
+    "complexity": "O(log n) per search; O(n log range) when you search on the answer"
+  },
+  {
+    "id": "linked-list",
+    "name": "Linked List",
+    "short": "Linked List",
+    "idea": "Most list problems combine three moves: reversing with prev/cur/next, finding the middle or a cycle with slow/fast pointers, and building output behind a dummy head so the first node isn't a special case. Draw the pointers before you reassign them.",
+    "signals": [
+      "reverse a list or a sublist",
+      "find the middle / kth from the end",
+      "detect a cycle",
+      "merge sorted lists",
+      "reorder / partition in place, O(1) extra space"
+    ],
+    "skeleton": "ListNode reverse(ListNode head) {\n    ListNode prev = null, cur = head;\n    while (cur != null) {\n        ListNode next = cur.next;\n        cur.next = prev;\n        prev = cur;\n        cur = next;\n    }\n    return prev;\n}\n\nListNode middle(ListNode head) {                // second middle when the length is even\n    ListNode slow = head, fast = head;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n    return slow;\n}\n\nListNode merge(ListNode a, ListNode b) {\n    ListNode dummy = new ListNode(0), tail = dummy;\n    while (a != null && b != null) {\n        if (a.val <= b.val) { tail.next = a; a = a.next; }\n        else { tail.next = b; b = b.next; }\n        tail = tail.next;\n    }\n    tail.next = a != null ? a : b;\n    return dummy.next;\n}",
+    "pitfalls": [
+      "Overwriting cur.next before saving it, which loses the rest of the list.",
+      "Checking only fast.next != null (not fast != null first), which throws NullPointerException on even-length lists.",
+      "Returning dummy instead of dummy.next.",
+      "Not cutting the first half's tail (mid.next = null) before reversing the second half, which creates a cycle.",
+      "Comparing node values with == when they're Integer (in a custom node class) instead of int."
+    ],
+    "complexity": "O(n) time, O(1) extra space (O(n) stack if recursive)"
+  },
+  {
+    "id": "trees",
+    "name": "Trees",
+    "short": "Trees",
+    "idea": "Most tree problems are a DFS where each call returns something about its subtree (height, sum, a validity flag) and the parent combines the children's results. Use BFS with a queue when the problem is about levels. For a BST, carry the valid (low, high) range down the recursion, or use the fact that an in-order traversal is sorted.",
+    "signals": [
+      "depth / height / diameter / balanced",
+      "level order / right side view / zigzag",
+      "validate a BST / kth smallest",
+      "lowest common ancestor",
+      "path sum (root-to-leaf or any path)"
+    ],
+    "skeleton": "int maxDepth(TreeNode root) {\n    if (root == null) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}\n\nList<List<Integer>> levelOrder(TreeNode root) {\n    List<List<Integer>> out = new ArrayList<>();\n    Deque<TreeNode> q = new ArrayDeque<>();\n    if (root != null) q.offer(root);\n    while (!q.isEmpty()) {\n        List<Integer> level = new ArrayList<>();\n        for (int n = q.size(); n > 0; n--) {    // freeze this level's size\n            TreeNode node = q.poll();\n            level.add(node.val);\n            if (node.left != null) q.offer(node.left);\n            if (node.right != null) q.offer(node.right);\n        }\n        out.add(level);\n    }\n    return out;\n}\n\nboolean isBST(TreeNode node, long lo, long hi) { // call with Long.MIN_VALUE, Long.MAX_VALUE\n    if (node == null) return true;\n    if (node.val <= lo || node.val >= hi) return false;\n    return isBST(node.left, lo, node.val) && isBST(node.right, node.val, hi);\n}",
+    "pitfalls": [
+      "Validating a BST by checking only the parent and its children. The constraint is the whole ancestor range.",
+      "Using Integer.MIN_VALUE / MAX_VALUE as the BST bounds when node values can equal them. Use long bounds or null.",
+      "Writing for (int i = 0; i < q.size(); i++) in level-order BFS. The size changes as you offer children.",
+      "Offering null children into an ArrayDeque, which throws NullPointerException (ArrayDeque rejects null).",
+      "Mixing up 'what this call returns to its parent' with 'the global answer' (diameter, max path sum). Keep the global answer in a field or a one-element array."
+    ],
+    "complexity": "O(n) time, O(h) recursion space (O(n) worst case for a skewed tree)"
+  },
+  {
+    "id": "heap",
+    "name": "Heap / Priority Queue",
+    "short": "Heap",
+    "idea": "A PriorityQueue gives you the min (or max) element in O(log n) per update. For top-k, keep a heap of size k ordered so the worst survivor is on top, and evict it whenever the size goes over k. This gives O(n log k) and never sorts everything. Two heaps (a max-heap for the low half, a min-heap for the high half) maintain a running median.",
+    "signals": [
+      "k largest / k smallest / kth",
+      "top k frequent",
+      "merge k sorted lists or arrays",
+      "running median",
+      "schedule by earliest end / cheapest next"
+    ],
+    "skeleton": "int kthLargest(int[] nums, int k) {\n    PriorityQueue<Integer> heap = new PriorityQueue<>();   // min-heap of the k largest\n    for (int x : nums) {\n        heap.offer(x);\n        if (heap.size() > k) heap.poll();\n    }\n    return heap.peek();\n}\n\nint[] topKFrequent(int[] nums, int k) {\n    Map<Integer, Integer> cnt = new HashMap<>();\n    for (int x : nums) cnt.merge(x, 1, Integer::sum);\n    PriorityQueue<int[]> heap = new PriorityQueue<>((a, b) -> Integer.compare(a[1], b[1]));\n    for (var e : cnt.entrySet()) {\n        heap.offer(new int[]{e.getKey(), e.getValue()});\n        if (heap.size() > k) heap.poll();\n    }\n    int[] out = new int[k];\n    for (int i = k - 1; i >= 0; i--) out[i] = heap.poll()[0];\n    return out;\n}\n\nPriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());",
+    "pitfalls": [
+      "Using (a, b) -> b - a for a max-heap, which overflows. Use Collections.reverseOrder() or Integer.compare(b, a).",
+      "Printing or iterating the PriorityQueue and expecting sorted order. Only poll() gives priority order.",
+      "Using a max-heap of everything for top-k (O(n log n)) instead of a min-heap of size k (O(n log k)).",
+      "Changing an element's priority after inserting it. The heap doesn't re-sift, so remove it and re-add it, or push a new entry and skip stale ones when they come out.",
+      "pq.remove(x) is O(n), not O(log n)."
+    ],
+    "complexity": "O(n log k) for top-k; O(log n) per offer/poll, O(1) peek"
+  },
+  {
+    "id": "graphs",
+    "name": "Graphs",
+    "short": "Graphs",
+    "idea": "Build an adjacency list (or treat a grid as an implicit graph), then traverse it with BFS for shortest paths in unweighted graphs, or DFS for reachability, components and flood fill. Kahn's algorithm (BFS over nodes with in-degree 0) gives a topological order, and if it can't place every node the graph has a cycle. For weighted shortest paths, use Dijkstra with a PriorityQueue.",
+    "signals": [
+      "number of islands / connected regions in a grid",
+      "shortest path / minimum steps",
+      "prerequisites / build order / can you finish",
+      "network delay / cheapest route (weighted)",
+      "clone / reachability / bipartite"
+    ],
+    "skeleton": "int[][] gridDist(int[][] grid, int sr, int sc) {   // BFS; -1 = unreachable, 1 = wall\n    int R = grid.length, C = grid[0].length;\n    int[][] dist = new int[R][C];\n    for (int[] row : dist) Arrays.fill(row, -1);\n    Deque<int[]> q = new ArrayDeque<>(List.of(new int[]{sr, sc}));\n    dist[sr][sc] = 0;                              // mark when enqueued, not when polled\n    int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};\n    while (!q.isEmpty()) {\n        int[] cur = q.poll();\n        for (int[] d : dirs) {\n            int r = cur[0] + d[0], c = cur[1] + d[1];\n            if (r < 0 || r >= R || c < 0 || c >= C || grid[r][c] == 1 || dist[r][c] != -1) continue;\n            dist[r][c] = dist[cur[0]][cur[1]] + 1;\n            q.offer(new int[]{r, c});\n        }\n    }\n    return dist;\n}\n\nList<Integer> topoOrder(int n, int[][] edges) {   // edge {u, v} means u before v\n    List<List<Integer>> adj = new ArrayList<>();\n    for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n    int[] indeg = new int[n];\n    for (int[] e : edges) { adj.get(e[0]).add(e[1]); indeg[e[1]]++; }\n    List<Integer> order = new ArrayList<>();       // doubles as the BFS queue\n    for (int i = 0; i < n; i++) if (indeg[i] == 0) order.add(i);\n    for (int k = 0; k < order.size(); k++)\n        for (int v : adj.get(order.get(k))) if (--indeg[v] == 0) order.add(v);\n    return order.size() == n ? order : List.of();  // shorter means there is a cycle\n}",
+    "pitfalls": [
+      "Marking a cell visited when you poll it instead of when you enqueue it. The same cell gets queued many times (TLE).",
+      "Recursive DFS on a 1000x1000 grid overflows the default thread stack. Use an iterative stack or BFS.",
+      "Building the adjacency list with new ArrayList[n] (a raw generic array) or Collections.nCopies (one shared list). Loop and add a new list per node.",
+      "Forgetting that undirected edges go into both adjacency lists.",
+      "Detecting cycles in a directed graph with a single visited set. You need three states (unvisited, on the current path, done), or Kahn's count check."
+    ],
+    "complexity": "O(V + E) for BFS/DFS/topological sort (O(R*C) on a grid); O((V + E) log V) for Dijkstra"
+  },
+  {
+    "id": "backtracking",
+    "name": "Backtracking",
+    "short": "Backtrack",
+    "idea": "Explore a decision tree by DFS. At each level, choose an option, recurse, then undo the choice so the shared path is clean for the next sibling. Record a copy of the path whenever it's a valid answer, and prune branches that can't lead to one. Sorting first makes it easy to skip duplicate values at the same depth.",
+    "signals": [
+      "all subsets / all permutations / all combinations",
+      "generate every valid string (parentheses, phone letters)",
+      "combination sum / partition into ...",
+      "word search in a grid",
+      "N-Queens / Sudoku / place items under constraints"
+    ],
+    "skeleton": "List<List<Integer>> subsetsWithDup(int[] nums) {\n    Arrays.sort(nums);\n    List<List<Integer>> out = new ArrayList<>();\n    backtrack(nums, 0, new ArrayList<>(), out);\n    return out;\n}\n\nvoid backtrack(int[] nums, int start, List<Integer> path, List<List<Integer>> out) {\n    out.add(new ArrayList<>(path));                 // snapshot, never the live list\n    for (int i = start; i < nums.length; i++) {\n        if (i > start && nums[i] == nums[i - 1]) continue;\n        path.add(nums[i]);\n        backtrack(nums, i + 1, path, out);\n        path.remove(path.size() - 1);\n    }\n}\n\nvoid permute(int[] nums, boolean[] used, List<Integer> path, List<List<Integer>> out) {\n    if (path.size() == nums.length) { out.add(new ArrayList<>(path)); return; }\n    for (int i = 0; i < nums.length; i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        path.add(nums[i]);\n        permute(nums, used, path, out);\n        path.remove(path.size() - 1);\n        used[i] = false;\n    }\n}",
+    "pitfalls": [
+      "out.add(path) without copying, so every result is the same list and ends up empty.",
+      "path.remove(x) with an int x removes by index, not value. Use path.remove(path.size() - 1).",
+      "Skipping duplicates with i > 0 instead of i > start, which also prunes valid answers that reuse a value at a deeper level.",
+      "Recursing on i + 1 when an element may be reused (combination sum recurses on i).",
+      "Forgetting to undo grid marks (board[r][c] = '#') on the way back in word search."
+    ],
+    "complexity": "Exponential: O(2^n · n) for subsets, O(n! · n) for permutations; O(n) recursion depth"
+  },
+  {
+    "id": "dp",
+    "name": "1-D Dynamic Programming",
+    "short": "1-D DP",
+    "idea": "Define dp[i] as the answer for a prefix (or for index i), write the recurrence from a few earlier states, and set the base cases. Top-down is plain recursion plus a memo array. Bottom-up fills the table in dependency order, and when dp[i] only needs the last one or two states you can keep just two variables.",
+    "signals": [
+      "number of ways to ...",
+      "minimum cost / fewest steps to reach n",
+      "max sum without adjacent picks",
+      "can the string be segmented / is it reachable",
+      "longest increasing subsequence"
+    ],
+    "skeleton": "int rob(int[] nums) {                           // top-down memo\n    return best(nums, 0, new Integer[nums.length]);\n}\n\nint best(int[] nums, int i, Integer[] memo) {\n    if (i >= nums.length) return 0;\n    if (memo[i] != null) return memo[i];\n    return memo[i] = Math.max(best(nums, i + 1, memo), nums[i] + best(nums, i + 2, memo));\n}\n\nint coinChange(int[] coins, int amount) {       // bottom-up table\n    int[] dp = new int[amount + 1];\n    Arrays.fill(dp, amount + 1);                // \"infinity\" that is safe to add 1 to\n    dp[0] = 0;\n    for (int a = 1; a <= amount; a++)\n        for (int c : coins)\n            if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);\n    return dp[amount] > amount ? -1 : dp[amount];\n}\n\nint climbStairs(int n) {                        // O(1) space rolling\n    int prev = 1, cur = 1;\n    for (int i = 2; i <= n; i++) { int next = prev + cur; prev = cur; cur = next; }\n    return cur;\n}",
+    "pitfalls": [
+      "Using Integer.MAX_VALUE as infinity and then adding 1, which wraps to negative and wins every min().",
+      "Memoising in an int[] filled with 0 when 0 is a valid answer. Use Integer[] with null, or fill with -1.",
+      "Counting ways in an int when the answer needs long or % 1_000_000_007.",
+      "Looping coins on the outside versus amounts on the outside without thinking: one counts combinations, the other counts permutations.",
+      "Deep top-down recursion (n ≈ 10^5) overflows the stack. Switch to bottom-up."
+    ],
+    "complexity": "O(n · choices) time, O(n) space (O(1) when rolling)"
+  },
+  {
+    "id": "dp2",
+    "name": "2-D Dynamic Programming",
+    "short": "2-D DP",
+    "idea": "The state is two indices: positions in two strings (LCS, edit distance), a grid cell (unique paths), or an index plus a capacity (knapsack). Pad the table by one row and one column so that index 0 means the empty prefix, which makes the base cases a single row and column. When row i only reads row i - 1, roll the table down to one array.",
+    "signals": [
+      "two strings: common subsequence, edit distance, interleaving",
+      "grid paths / minimum path sum",
+      "knapsack: pick items under a capacity",
+      "palindromic substrings / subsequences",
+      "word break / regex / wildcard matching"
+    ],
+    "skeleton": "int lcs(String a, String b) {\n    int m = a.length(), n = b.length();\n    int[][] dp = new int[m + 1][n + 1];         // dp[i][j]: a[0..i) vs b[0..j)\n    for (int i = 1; i <= m; i++)\n        for (int j = 1; j <= n; j++)\n            dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1)\n                    ? dp[i - 1][j - 1] + 1\n                    : Math.max(dp[i - 1][j], dp[i][j - 1]);\n    return dp[m][n];\n}\n\nint editDistance(String a, String b) {\n    int m = a.length(), n = b.length();\n    int[][] dp = new int[m + 1][n + 1];\n    for (int i = 0; i <= m; i++) dp[i][0] = i;\n    for (int j = 0; j <= n; j++) dp[0][j] = j;\n    for (int i = 1; i <= m; i++)\n        for (int j = 1; j <= n; j++)\n            dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1)\n                    ? dp[i - 1][j - 1]\n                    : 1 + Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1]));\n    return dp[m][n];\n}",
+    "pitfalls": [
+      "Off-by-one between the table index and the string index: dp[i][j] reads charAt(i - 1).",
+      "Forgetting the base row and column (edit distance needs dp[i][0] = i, not 0).",
+      "When rolling to 1-D, overwriting dp[j - 1] before you read the old diagonal. Save it in a prev variable.",
+      "0/1 knapsack rolled to 1-D must loop capacity downwards, otherwise an item gets reused.",
+      "Allocating new int[m][n] instead of new int[m + 1][n + 1] and then special-casing every boundary."
+    ],
+    "complexity": "O(m · n) time, O(m · n) space (O(n) rolled)"
+  },
+  {
+    "id": "intervals",
+    "name": "Intervals",
+    "short": "Intervals",
+    "idea": "Sort first, usually by start. Then one linear sweep is enough, because only the last interval you kept can overlap the current one. To count rooms or concurrent events, keep a min-heap of end times, or sort the starts and ends separately. To keep the most non-overlapping intervals, sort by end and greedily take the one that finishes first.",
+    "signals": [
+      "merge overlapping intervals",
+      "insert an interval",
+      "minimum meeting rooms / max concurrent",
+      "remove the fewest intervals so none overlap",
+      "free time / intersection of schedules"
+    ],
+    "skeleton": "int[][] merge(int[][] intervals) {\n    Arrays.sort(intervals, (x, y) -> Integer.compare(x[0], y[0]));\n    List<int[]> out = new ArrayList<>();\n    for (int[] cur : intervals) {\n        int[] last = out.isEmpty() ? null : out.get(out.size() - 1);\n        if (last == null || last[1] < cur[0]) out.add(new int[]{cur[0], cur[1]});\n        else last[1] = Math.max(last[1], cur[1]);\n    }\n    return out.toArray(new int[0][]);\n}\n\nint minRooms(int[][] meetings) {\n    Arrays.sort(meetings, (x, y) -> Integer.compare(x[0], y[0]));\n    PriorityQueue<Integer> ends = new PriorityQueue<>();\n    for (int[] m : meetings) {\n        if (!ends.isEmpty() && ends.peek() <= m[0]) ends.poll();   // reuse a freed room\n        ends.offer(m[1]);\n    }\n    return ends.size();\n}\n\nint eraseOverlaps(int[][] iv) {                 // fewest removals so none overlap\n    Arrays.sort(iv, (x, y) -> Integer.compare(x[1], y[1]));\n    int kept = 0, end = Integer.MIN_VALUE;\n    for (int[] x : iv) if (x[0] >= end) { kept++; end = x[1]; }\n    return iv.length - kept;\n}",
+    "pitfalls": [
+      "Setting last[1] = cur[1] instead of Math.max(last[1], cur[1]), which breaks when one interval contains the next.",
+      "Getting touching intervals wrong ([1,2] and [2,3]): read whether the problem treats them as overlapping, and then choose < or <=.",
+      "Sorting with (x, y) -> x[0] - y[0], which overflows on extreme values.",
+      "Writing out.toArray(new int[0]). It must be new int[0][] for a List<int[]>.",
+      "Sorting by start for the max-non-overlapping greedy. It needs to be by end."
+    ],
+    "complexity": "O(n log n) for the sort, then an O(n) sweep (O(n log n) with the heap)"
+  },
+  {
+    "id": "design",
+    "name": "Design, Trie & Union-Find",
+    "short": "Design",
+    "idea": "Class-design questions are about choosing structures whose combined operations hit the required complexity. For example, an LRU cache uses a HashMap for lookups and a doubly linked list (or LinkedHashMap) for recency. A trie stores strings character by character, so prefix queries cost O(length). Union-find merges sets and answers 'same component?' in near-constant time with path compression plus union by rank.",
+    "signals": [
+      "implement a class supporting get/put/... in O(1)",
+      "prefix search / autocomplete / word dictionary",
+      "are these connected / count components as edges arrive",
+      "redundant connection / cycle in an undirected graph",
+      "min stack / LRU / time-based key-value store"
+    ],
+    "skeleton": "class UnionFind {\n    private final int[] parent, rank;\n    UnionFind(int n) { parent = new int[n]; rank = new int[n]; Arrays.setAll(parent, i -> i); }\n    int find(int x) { return parent[x] == x ? x : (parent[x] = find(parent[x])); }\n    boolean union(int a, int b) {               // false if already connected\n        int ra = find(a), rb = find(b);\n        if (ra == rb) return false;\n        if (rank[ra] < rank[rb]) { int t = ra; ra = rb; rb = t; }\n        parent[rb] = ra;\n        if (rank[ra] == rank[rb]) rank[ra]++;\n        return true;\n    }\n}\n\nclass Trie {\n    private final Trie[] kids = new Trie[26];\n    private boolean word;\n    void insert(String w) {\n        Trie t = this;\n        for (char c : w.toCharArray())\n            t = t.kids[c - 'a'] != null ? t.kids[c - 'a'] : (t.kids[c - 'a'] = new Trie());\n        t.word = true;\n    }\n    boolean search(String w, boolean prefixOk) {\n        Trie t = this;\n        for (char c : w.toCharArray()) if ((t = t.kids[c - 'a']) == null) return false;\n        return prefixOk || t.word;\n    }\n}",
+    "pitfalls": [
+      "Union without find: parent[a] = b links non-roots and corrupts the sets. Always link root to root.",
+      "Comparing parent[a] == parent[b] to test connectivity instead of find(a) == find(b).",
+      "In a trie, treating 'path exists' as 'word exists'. Check the end-of-word flag.",
+      "LRU by hand: forgetting to move a node to the front on get (not just on put), or to delete the evicted key from the map.",
+      "LinkedHashMap LRU needs the accessOrder = true constructor argument plus removeEldestEntry. Without it the map keeps insertion order."
+    ],
+    "complexity": "Union-find: O(α(n)) amortised per op; trie: O(L) per insert/search; LRU: O(1) get/put"
+  }
+]

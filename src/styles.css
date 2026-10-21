@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+/* Atlas: a dark command center. Accents are the validated dark-surface
+   categorical steps (one per mode); status colors are fixed and always ship
+   with an icon + label. */
+@theme {
+  --color-bg: #08080a;
+  --color-surface-1: #111113;
+  --color-surface-2: #17171a;
+  --color-surface-3: #212125;
+  --color-line: #232327;
+  --color-line-2: #2e2e33;
+  --color-ink: #f2f1ee;
+  --color-ink-2: #c4c3bb;
+  --color-ink-3: #85847c;
+  --color-ink-4: #57564f;
+  --color-brand: #3987e5;
+  --color-accent: var(--accent);
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-critical: #d03b3b;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-display: -apple-system, "SF Pro Display", BlinkMacSystemFont, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --accent: #3987e5;
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+  overflow: hidden;
+}
+
+/* The room: dot grid + the mode's accent glowing in from above. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 420px at 50% -120px, var(--accent-soft), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.045) 1px, transparent 0) 0 0 / 22px 22px;
+  transition: background 400ms ease;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+.display { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.selectable, .prose-chat { user-select: text; cursor: auto; }
+
+/* HUD panel: hairline border, glass fill, accent corner brackets. */
+.hud {
+  --tick: var(--accent-line);
+  position: relative;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background:
+    linear-gradient(var(--tick), var(--tick)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) bottom right / 1px 12px no-repeat,
+    rgb(17 17 19 / 0.78);
+  backdrop-filter: blur(14px);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-line-2);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Launcher keycap. */
+.tile {
+  position: relative;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 60%), var(--color-surface-1);
+  transition: border-color 140ms, transform 140ms, box-shadow 200ms;
+}
+.tile:hover {
+  border-color: var(--accent-line);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px -14px var(--accent), inset 0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.tile.fired { animation: fire 520ms ease-out; }
+@keyframes fire {
+  0% { box-shadow: 0 0 0 0 var(--accent); border-color: var(--accent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+
+.live-dot { position: relative; }
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: ping 2.4s ease-out infinite;
+}
+@keyframes ping {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.rise { animation: rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--color-surface-3); border-radius: 8px; border: 3px solid var(--color-bg); }
+
+.prose-chat p { margin: 0.5em 0; line-height: 1.6; }
+.prose-chat ul, .prose-chat ol { margin: 0.5em 0; padding-left: 1.4em; }
+.prose-chat ul { list-style: disc; }
+.prose-chat ol { list-style: decimal; }
+.prose-chat li { margin: 0.2em 0; }
+.prose-chat h1, .prose-chat h2, .prose-chat h3 { font-weight: 600; margin: 0.9em 0 0.4em; }
+.prose-chat code { font-family: var(--font-mono); font-size: 0.88em; background: var(--color-surface-3); padding: 0.1em 0.35em; border-radius: 4px; }
+.prose-chat pre { background: var(--color-bg); border: 1px solid var(--color-line); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 0.7em 0; }
+.prose-chat pre code { background: none; padding: 0; }
+.prose-chat table { border-collapse: collapse; margin: 0.6em 0; }
+.prose-chat th, .prose-chat td { border: 1px solid var(--color-line); padding: 4px 8px; }
+.prose-chat a { color: var(--accent); }
+
+/* Orbit: a radar sweep between the core and the signal ring. */
+.orbit-sweep {
+  background: conic-gradient(from 0deg, transparent 0deg, color-mix(in oklab, var(--accent) 26%, transparent) 38deg, transparent 40deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 25%, #000 26%, #000 70%, transparent 72%);
+  mask: radial-gradient(circle closest-side, transparent 25%, #000 26%, #000 70%, transparent 72%);
+  opacity: 0.6;
+  animation: sweep 10s linear infinite;
+}
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+/* Diving into a folder's world. */
+.zoom-in { animation: zoom-in 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes zoom-in { from { opacity: 0; transform: scale(0.82); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-sweep { animation: none; opacity: 0.25; }
+  .zoom-in { animation: none; }
+  .rise, .tile.fired, .live-dot::after { animation: none; }
+  .tile:hover { transform: none; }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "two-sum",
+  "title": "Two Sum",
+  "pattern": "hashing",
+  "difficulty": "easy",
+  "statement": "Given an array of integers `nums` and an integer `target`, return the indices of two **different** elements whose values add up to `target`.\n\nAt least one such pair exists. If there are several, return any one of them, in any order.",
+  "examples": [
+    { "input": "nums = [2, 7, 11, 15], target = 9", "output": "[0, 1]" },
+    { "input": "nums = [3, 2, 4], target = 6", "output": "[1, 2]" },
+    { "input": "nums = [3, 3], target = 6", "output": "[0, 1]" }
+  ],
+  "constraints": ["2 ≤ nums.length ≤ 10^5", "-10^9 ≤ nums[i], target ≤ 10^9"],
+  "params": ["nums", "target"],
+  "starter": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        return new int[0];\n    }\n}\n",
+  "target": { "time": "n", "space": "n" },
+  "benchN": "nums.length",
+  "bench": { "min": 1024, "max": 1048576 },
+  "hints": [
+    "The brute force checks every pair. For a fixed nums[i], what single value are you actually looking for?",
+    "You need to answer \"have I already seen target - nums[i], and where?\" in O(1). Which structure answers membership-plus-location in constant time?",
+    "One pass with a HashMap<Integer, Integer> from value to index: before inserting nums[i], look up target - nums[i]. Checking before inserting is what stops you pairing an element with itself."
+  ],
+  "followups": [
+    "What if the array were already sorted — can you get O(1) extra space?",
+    "What if you had to return every pair, not just one, without duplicates?",
+    "How does your answer change if nums is a stream too large to fit in memory?"
+  ],
+  "explain": "Walk the array once, keeping a map from each value seen so far to its index. For each nums[i], if target - nums[i] is already in the map, those two indices are the answer. Looking up before inserting handles the [3, 3] case and stops an element pairing with itself. O(n) time, O(n) space. The sorted follow-up uses two pointers from both ends instead, for O(1) space.",
+  "tags": ["hashmap", "complement lookup"]
+}

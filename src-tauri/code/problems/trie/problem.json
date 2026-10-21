@@ -1,0 +1,51 @@
+{
+  "id": "trie",
+  "title": "Implement Trie (Prefix Tree)",
+  "pattern": "design",
+  "difficulty": "medium",
+  "statement": "Build a **trie** (prefix tree) that stores lowercase words and answers prefix questions quickly.\n\nImplement `Trie`:\n- `Trie()` creates an empty trie.\n- `void insert(String word)` adds `word`. Inserting a word twice changes nothing.\n- `boolean search(String word)` returns `true` only if `word` itself was inserted. Being a prefix of an inserted word is not enough.\n- `boolean startsWith(String prefix)` returns `true` if some inserted word begins with `prefix` (a word counts as a prefix of itself).\n\nEach call should take time proportional to the length of its argument, no matter how many words are stored.\n\nThe tests replay a list of operations: `ops[i]` is the method name and `args[i]` its arguments. The expected output has `null` for the constructor and for each `insert`.",
+  "examples": [
+    {
+      "input": "ops = [\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\", \"insert\", \"search\"], args = [[], [\"cart\"], [\"car\"], [\"cart\"], [\"car\"], [\"car\"], [\"car\"]]",
+      "output": "[null, null, false, true, true, null, true]"
+    }
+  ],
+  "constraints": [
+    "1 ≤ word.length, prefix.length ≤ 2000",
+    "words and prefixes contain only lowercase English letters",
+    "up to 3·10^4 calls in total"
+  ],
+  "params": [
+    "ops",
+    "args"
+  ],
+  "classes": [
+    "Trie"
+  ],
+  "starter": "class Trie {\n\n    public Trie() {\n\n    }\n\n    public void insert(String word) {\n\n    }\n\n    public boolean search(String word) {\n        return false;\n    }\n\n    public boolean startsWith(String prefix) {\n        return false;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "total characters inserted",
+    "note": "O(L) per operation for a word of length L; words in the benchmark are at most 8 letters, so n operations take O(n)"
+  },
+  "benchN": "number of operations",
+  "bench": {
+    "min": 4096,
+    "max": 524288
+  },
+  "hints": [
+    "A HashSet answers search in O(L), but startsWith would have to look at every stored word. What structure lets words that share a beginning share the work of storing it?",
+    "Store one node per prefix. Each node has up to 26 children, one per next letter, and a flag that says whether a whole word ends there. search and startsWith both walk down from the root one letter at a time.",
+    "Give a private static nested Node class a Node[26] array and a boolean. insert walks the word, creating missing children, then sets the flag on the last node. Write one helper that walks a string and returns the node it lands on, or null if it falls off. search checks that node's flag; startsWith only checks it isn't null."
+  ],
+  "followups": [
+    "Node[26] vs HashMap<Character, Node> for the children: what are the memory and speed trade-offs, and when would you switch?",
+    "Add a method that returns every stored word starting with a prefix, sorted. What's its complexity?",
+    "How would you support search with a '.' wildcard that matches any single letter?"
+  ],
+  "explain": "Each trie node represents one prefix: a Node[26] array of children plus a boolean marking that a complete word ends there. insert follows the letters from the root, creating missing nodes, and marks the final one. A shared walk helper returns the node for a string, or null if a child is missing. search needs that node to exist and be marked, so a prefix of a stored word returns false. startsWith only needs it to exist. Every operation is O(L) for an argument of length L, independent of how many words are stored; space is O(total characters inserted × 26) references in the worst case. In Java, compute the child index with word.charAt(i) - 'a', and keep Node a private static nested class so it doesn't hold a hidden reference to the outer object.",
+  "tags": [
+    "trie",
+    "prefix tree"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "num-islands",
+  "title": "Number of Islands",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "statement": "You are given an `m × n` grid of characters where `'1'` is land and `'0'` is water. An **island** is a group of land cells connected **horizontally or vertically** (diagonal neighbours don't count). Everything outside the grid is water.\n\nReturn the number of islands. Each grid row is shown as a string, e.g. `\"11000\"`.",
+  "examples": [
+    {
+      "input": "grid = [\"11110\", \"11010\", \"11000\", \"00000\"]",
+      "output": "1"
+    },
+    {
+      "input": "grid = [\"11000\", \"11000\", \"00100\", \"00011\"]",
+      "output": "3"
+    }
+  ],
+  "constraints": [
+    "1 ≤ m, n ≤ 300",
+    "grid[i][j] is '0' or '1'"
+  ],
+  "params": [
+    "grid"
+  ],
+  "starter": "class Solution {\n    public int numIslands(char[][] grid) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n"
+  },
+  "benchN": "number of cells (a near-square grid, 60% land)",
+  "bench": {
+    "min": 4096,
+    "max": 4194304
+  },
+  "hints": [
+    "Treat each land cell as a graph node with edges to its up, down, left and right land neighbours. What are you actually counting?",
+    "You're counting connected components. Scan the grid, and whenever you find land you haven't visited, that's a new island. Flood-fill all of it right away so none of its cells is counted again.",
+    "Loop over every cell. On a '1', add one to the count and run a DFS or BFS from it that turns every reachable '1' into '0' (or marks it visited). Check the grid bounds before you index."
+  ],
+  "followups": [
+    "Your recursive DFS can go about m·n calls deep on one big island. How would you avoid a stack overflow?",
+    "Solve it with union-find instead. When is that the better tool, for example when land is added one cell at a time and you report the count after each addition?",
+    "What if you weren't allowed to modify the grid?"
+  ],
+  "explain": "This counts connected components in an implicit grid graph. Scan every cell, and each time you hit a '1', count a new island and flood-fill it, sinking every connected land cell to '0' so it's never counted again. Each cell is visited a constant number of times: O(m·n) time. The extra space is the flood fill's stack or queue, O(m·n) in the worst case. Recursive DFS is the usual interview answer, but one big island can make it m·n calls deep and overflow the default Java thread stack. An explicit int stack or an ArrayDeque BFS avoids that, and encoding a cell as r * cols + c avoids allocating an int[] per cell. Mark a cell when you push it, not when you pop it, so nothing is pushed twice. If mutating the input isn't allowed, use a boolean[][] visited array instead.",
+  "tags": [
+    "flood fill",
+    "dfs",
+    "connected components"
+  ]
+}

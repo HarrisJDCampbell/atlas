@@ -1,0 +1,29 @@
+{
+  "id": "container-water",
+  "title": "Container With Most Water",
+  "pattern": "two-pointers",
+  "difficulty": "medium",
+  "statement": "You are given `height`, where `height[i]` is the height of a vertical line standing at x-coordinate `i`. Pick any two lines; together with the x-axis they form a container whose water level can reach only the **shorter** of the two lines. The amount of water it holds is `min(height[i], height[j]) * (j - i)`.\n\nReturn the largest amount of water any pair of lines can hold. The container can't be tilted, and the lines in between don't get in the way.",
+  "examples": [
+    { "input": "height = [1, 8, 6, 2, 5, 4, 8, 3, 7]", "output": "49" },
+    { "input": "height = [1, 1]", "output": "1" }
+  ],
+  "constraints": ["2 ≤ height.length ≤ 10^5", "0 ≤ height[i] ≤ 10^4"],
+  "params": ["height"],
+  "starter": "class Solution {\n    public int maxArea(int[] height) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "1" },
+  "benchN": "height.length",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Checking every pair is O(n^2). Start with the widest possible container, the two outermost lines. If you then move one pointer inward, the width shrinks, so what has to happen for the area to grow?",
+    "Two pointers at the ends. The area is limited by the shorter line, and any container that keeps the shorter line but is narrower is strictly worse. So the shorter line can never be part of a better answer; discard it.",
+    "lo = 0, hi = n-1. Record min(h[lo], h[hi]) · (hi - lo), then move whichever pointer has the shorter line inward (either one on a tie). Stop when they meet. One pass."
+  ],
+  "followups": [
+    "Prove that moving the shorter line never skips the optimal pair.",
+    "On a tie, does it matter which pointer you move? Why?",
+    "How is this different from Trapping Rain Water, which also uses two pointers on heights?"
+  ],
+  "explain": "Put pointers at both ends, which gives the widest container. The water is bounded by the shorter line, say height[lo]. Pairing lo with any hi' < hi gives a smaller width and a height still at most height[lo], so every remaining container that uses lo is no better than the one just measured. That means lo can be discarded safely: move it inward (or hi, if it's the shorter one). Each step removes one line, so it's O(n) time and O(1) space. This exchange argument is what interviewers want to hear; without it, the greedy move looks like a guess. With the given constraints the area is at most 10^4 · 10^5 = 10^9, which fits in an int.",
+  "tags": ["two pointers", "greedy", "exchange argument"]
+}

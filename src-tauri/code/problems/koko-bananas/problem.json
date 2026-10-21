@@ -1,0 +1,30 @@
+{
+  "id": "koko-bananas",
+  "title": "Koko Eating Bananas",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "statement": "There are `piles.length` piles of bananas; pile `i` holds `piles[i]` bananas. A monkey has `h` hours before the keepers return.\n\nThe monkey picks one integer eating speed `k` (bananas per hour) and sticks to it. Each hour it chooses a single pile and eats `k` bananas from it; if the pile has fewer than `k` left, it finishes that pile and waits out the rest of the hour without starting another.\n\nReturn the **smallest** `k` that lets the monkey finish every pile within `h` hours. `h` is always at least `piles.length`, so an answer exists.",
+  "examples": [
+    { "input": "piles = [4, 9, 12], h = 6", "output": "5" },
+    { "input": "piles = [10], h = 3", "output": "4" },
+    { "input": "piles = [5, 5, 5], h = 3", "output": "5" }
+  ],
+  "constraints": ["1 ≤ piles.length ≤ 10^4", "piles.length ≤ h ≤ 10^9", "1 ≤ piles[i] ≤ 10^9"],
+  "params": ["piles", "h"],
+  "starter": "class Solution {\n    public int minEatingSpeed(int[] piles, int h) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "O(n log M) where M = max pile. M is capped at 10^9, so the binary search makes at most ~30 passes and the benchmark, which grows n with M fixed, sees linear growth" },
+  "benchN": "piles.length",
+  "bench": { "min": 1024, "max": 2097152 },
+  "hints": [
+    "If speed k is fast enough, is k + 1 fast enough too? What does that say about the set of speeds that work?",
+    "Feasibility is monotonic in k: false, false, ..., true, true. So binary search over the answer itself, between 1 and the largest pile, checking each candidate with one pass over the piles.",
+    "lo = 1, hi = max(piles). While lo < hi: mid = lo + (hi - lo) / 2; total the hours as the sum of ceil(pile / mid) in a long. If total <= h, hi = mid, else lo = mid + 1. Return lo."
+  ],
+  "followups": [
+    "Can you tighten the initial search bounds, e.g. a lower bound of ceil(sum / h)?",
+    "Name another problem where you binary search on the answer — say, shipping packages within D days, or splitting an array to minimize the largest sum.",
+    "What changes if the monkey may move on to the next pile within the same hour?"
+  ],
+  "explain": "The question \"can the monkey finish at speed k?\" is monotonic: once a speed works, every faster speed works too. That turns the problem into finding the first true in a sorted boolean sequence, so binary search on k between 1 and max(piles) — no faster speed is ever needed, since at max(piles) each pile takes exactly one hour. Checking a speed is one pass summing ceil(p / k). Total time O(n log M) with M = max pile (about 30 checks for 10^9), O(1) extra space. Two Java traps: the hour total can reach 10^13 at low speeds, so sum it in a long; and (p + k - 1) / k overflows int when both are near 10^9, so use (p - 1) / k + 1 or long arithmetic. Trying k = 1, 2, 3, ... is O(n · answer), hopeless when the answer is in the hundreds of millions.",
+  "tags": ["binary search on answer", "monotonic predicate"]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "reverse-list",
+  "title": "Reverse Linked List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "statement": "Given the `head` of a singly linked list, reverse the list and return the new head.\n\nReuse the existing nodes by changing their `next` pointers — don't build a new list. The list may be empty, in which case `head` is `null` and you should return `null`.",
+  "examples": [
+    { "input": "head = [1, 2, 3, 4]", "output": "[4, 3, 2, 1]" },
+    { "input": "head = [5, 9]", "output": "[9, 5]" },
+    { "input": "head = [7]", "output": "[7]" }
+  ],
+  "constraints": ["0 ≤ number of nodes ≤ 5000", "-5000 ≤ Node.val ≤ 5000"],
+  "params": ["head"],
+  "starter": "/**\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public ListNode reverseList(ListNode head) {\n        return null;\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "the benchmark time includes building the input list, which is also linear" },
+  "benchN": "number of nodes",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "When you flip a node's next pointer to point backwards, what do you lose, and what do you need to have saved first?",
+    "Walk the list with two pointers: prev (the already-reversed part) and cur (the rest). Before pointing cur.next at prev, save cur.next in a temporary.",
+    "Start with prev = null, cur = head. Loop while cur != null: next = cur.next; cur.next = prev; prev = cur; cur = next. When the loop ends, prev is the new head."
+  ],
+  "followups": [
+    "Write it recursively. What's the space cost, and when would that matter?",
+    "Reverse only the nodes between positions left and right, in one pass.",
+    "Reverse the list in groups of k nodes."
+  ],
+  "explain": "Iterate with prev = null and cur = head. At each node, save next = cur.next, point cur.next back at prev, then advance both pointers (prev = cur, cur = next). The invariant is that prev heads a fully reversed list of the nodes visited so far, while cur heads the untouched rest; when cur is null, prev is the answer. One pass, O(n) time, O(1) extra space, and the empty and single-node lists need no special case. The recursive version — reverse head.next, then set head.next.next = head and head.next = null — is elegant but uses O(n) stack, which can overflow on a long list in Java's default thread stack.",
+  "tags": ["pointer manipulation", "in-place"]
+}

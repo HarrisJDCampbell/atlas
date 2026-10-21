@@ -1,0 +1,53 @@
+{
+  "id": "course-schedule",
+  "title": "Course Schedule",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "statement": "There are `numCourses` courses, labelled `0` to `numCourses - 1`. Each pair `[a, b]` in `prerequisites` means you must finish course `b` before you can take course `a`.\n\nReturn `true` if there is an order in which you can finish **every** course, and `false` otherwise.\n\nAll pairs are distinct, and no course is its own prerequisite.",
+  "examples": [
+    {
+      "input": "numCourses = 2, prerequisites = [[1, 0]]",
+      "output": "true"
+    },
+    {
+      "input": "numCourses = 2, prerequisites = [[1, 0], [0, 1]]",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 ≤ numCourses ≤ 10^5",
+    "0 ≤ prerequisites.length ≤ 2·10^5",
+    "0 ≤ a, b < numCourses, a ≠ b"
+  ],
+  "params": [
+    "numCourses",
+    "prerequisites"
+  ],
+  "starter": "class Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        return false;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "O(V + E); the bench has about 2n prerequisite pairs"
+  },
+  "benchN": "numCourses (about 2n prerequisite pairs, finishable)",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "Draw each course as a node with an arrow from each prerequisite to the course it unlocks. What shape in that graph makes finishing impossible?",
+    "You can finish everything exactly when the graph has no directed cycle. Detect one either by peeling off courses that have no unmet prerequisites (Kahn's topological sort) or by a DFS that notices it has returned to a node still on its current path.",
+    "Kahn's algorithm: build adjacency lists b → a and count each course's unmet prerequisites. Queue every course with count 0. Pop one, count it as taken, and decrement each course it unlocks, queueing any that reach 0. The answer is whether you took numCourses courses."
+  ],
+  "followups": [
+    "Return an actual valid order to take the courses in, or an empty array if none exists.",
+    "Write the DFS version with three node states (unvisited, on the current path, done). Why isn't a single visited flag enough?",
+    "If you can take any number of courses in one semester, as long as their prerequisites are done, how many semesters does the whole program need?"
+  ],
+  "explain": "Model courses as nodes with an edge from each prerequisite to the course it unlocks. Every course can be finished exactly when this directed graph is acyclic. Kahn's algorithm proves it constructively. Start with every course that has zero unmet prerequisites, and each time you take one, decrement the count of everything it unlocks, enqueueing those that reach zero. Courses on a cycle never reach zero, so you took all numCourses courses if and only if there is no cycle. O(V + E) time and space. The DFS alternative colours nodes white, gray and black and reports a cycle when it meets a gray node, which is a back edge. Recursion can go V deep, so Kahn's is safer in Java. Use List<List<Integer>> or arrays for adjacency rather than a Map, and an int[] or ArrayDeque as the queue.",
+  "tags": [
+    "topological sort",
+    "cycle detection",
+    "kahn"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "edit-distance",
+  "title": "Edit Distance",
+  "pattern": "dp2",
+  "difficulty": "hard",
+  "statement": "You may change a string with three single-character operations: **insert** a character anywhere, **delete** a character, or **replace** a character with a different one.\n\nGiven `word1` and `word2`, return the smallest number of operations that turns `word1` into `word2`.",
+  "examples": [
+    {
+      "input": "word1 = \"kitten\", word2 = \"sitting\"",
+      "output": "3"
+    },
+    {
+      "input": "word1 = \"sunday\", word2 = \"saturday\"",
+      "output": "3"
+    },
+    {
+      "input": "word1 = \"\", word2 = \"abc\"",
+      "output": "3"
+    }
+  ],
+  "constraints": [
+    "0 ≤ word1.length, word2.length ≤ 500",
+    "both strings contain only lowercase English letters"
+  ],
+  "params": [
+    "word1",
+    "word2"
+  ],
+  "starter": "class Solution {\n    public int minDistance(String word1, String word2) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n^2",
+    "space": "n",
+    "note": "O(m·n) time; a rolling row gives O(n) space"
+  },
+  "benchN": "length of each string",
+  "bench": {
+    "min": 256,
+    "max": 8192
+  },
+  "hints": [
+    "Think about only the last character of each prefix. If they're equal, do you need to spend an operation on them at all? If not, what are the three things the final operation could have been?",
+    "Let dp[i][j] be the cost to turn the first i characters of word1 into the first j characters of word2. Each of insert, delete and replace corresponds to one neighbouring cell of the table, and the empty-prefix row and column have obvious values.",
+    "dp[i][0] = i and dp[0][j] = j. If word1[i-1] == word2[j-1], dp[i][j] = dp[i-1][j-1]. Otherwise dp[i][j] = 1 + min(dp[i-1][j-1] (replace), dp[i-1][j] (delete), dp[i][j-1] (insert)). Fill row by row and return dp[m][n]; one previous row is all you need to keep."
+  ],
+  "followups": [
+    "How would you recover the actual sequence of edits?",
+    "If you only need to know whether the distance is at most k, can you do better than O(m·n)?",
+    "How would the recurrence change if replace cost 2, or if swapping two adjacent characters also counted as one operation?"
+  ],
+  "explain": "dp[i][j] is the minimum cost to turn word1[0..i) into word2[0..j). Turning a prefix into the empty string takes i deletes, and building a prefix from nothing takes j inserts, which seeds row 0 and column 0. If the last characters match, they cost nothing: dp[i-1][j-1]. Otherwise the last operation was a replace (dp[i-1][j-1]), a delete of word1's last char (dp[i-1][j]) or an insert of word2's last char (dp[i][j-1]), plus one. That covers every possibility, so the minimum is optimal. O(m·n) time; keeping just the previous row (and setting cur[0] = i each row) gives O(n) space. In Java, Math.min only takes two arguments, so nest it.",
+  "tags": [
+    "2-D dp",
+    "string dp",
+    "Levenshtein"
+  ]
+}

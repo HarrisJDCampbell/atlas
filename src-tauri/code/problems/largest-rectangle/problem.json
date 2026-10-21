@@ -1,0 +1,30 @@
+{
+  "id": "largest-rectangle",
+  "title": "Largest Rectangle in Histogram",
+  "pattern": "stack",
+  "difficulty": "hard",
+  "statement": "`heights` describes a histogram: bar `i` has width `1` and height `heights[i]`, and the bars stand side by side with no gaps.\n\nReturn the area of the largest axis-aligned rectangle that fits entirely inside the histogram. A rectangle covering bars `l..r` can be at most as tall as the shortest bar in that range.",
+  "examples": [
+    { "input": "heights = [3, 1, 4, 4, 2]", "output": "8" },
+    { "input": "heights = [2, 2, 2]", "output": "6" },
+    { "input": "heights = [1, 3, 2, 5, 4]", "output": "8" }
+  ],
+  "constraints": ["1 ≤ heights.length ≤ 10^5", "0 ≤ heights[i] ≤ 10^4"],
+  "params": ["heights"],
+  "starter": "class Solution {\n    public int largestRectangleArea(int[] heights) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "n" },
+  "benchN": "heights.length",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Suppose the best rectangle's height is exactly heights[i]. How far left and right can it stretch? What stops it?",
+    "It stretches until the first strictly shorter bar on each side. A stack of indices with increasing heights finds both boundaries: when bar i is shorter than the top, i is the right boundary for the top, and the element beneath the top is its left boundary.",
+    "Scan i from 0 to n, treating heights[n] as 0. While the stack's top bar is at least as tall as the current height, pop it; its width is i - (new top) - 1, or i if the stack is now empty. Track the max of height × width, then push i."
+  ],
+  "followups": [
+    "How would you use this to find the largest rectangle of 1s in a binary matrix?",
+    "Can you compute the nearest-shorter-bar arrays in two separate passes instead of one? What's the trade-off?",
+    "Why does popping on >= instead of > still give the right answer when heights repeat?"
+  ],
+  "explain": "Every candidate rectangle is limited by its shortest bar, so for each bar ask how wide a rectangle of exactly that height can be: it extends until the nearest strictly shorter bar on each side. Keep a stack of indices with increasing heights. When the current bar is no taller than the bar on top, the top has found its right boundary (the current index) and its left boundary is the index now beneath it on the stack, so its area is height × (i - left - 1). A sentinel height of 0 at i = n pops everything that's left. Each index is pushed and popped once: O(n) time, O(n) space. Equal heights are fine with >=: the last bar of a run of equal bars is popped with the full width. Computing the area in long avoids overflow surprises if the limits grow. Expanding left and right from every bar, or divide-and-conquer on the minimum, is O(n^2) on a nearly flat histogram.",
+  "tags": ["monotonic stack", "nearest smaller element"]
+}

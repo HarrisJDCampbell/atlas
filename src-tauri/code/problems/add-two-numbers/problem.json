@@ -1,0 +1,30 @@
+{
+  "id": "add-two-numbers",
+  "title": "Add Two Numbers",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "statement": "Two non-negative integers are stored as linked lists of digits, **least significant digit first**: the list `[8, 1]` is the number 18. Each node holds one digit `0`–`9`, and neither number has leading zeros except the number 0 itself, which is the single-node list `[0]`.\n\nReturn the sum of the two numbers as a linked list in the same format.\n\nThe numbers can be far longer than a `long` can hold.",
+  "examples": [
+    { "input": "l1 = [8, 1], l2 = [5, 3]", "output": "[3, 5]" },
+    { "input": "l1 = [9, 9, 9], l2 = [2]", "output": "[1, 0, 0, 1]" },
+    { "input": "l1 = [0], l2 = [0]", "output": "[0]" }
+  ],
+  "constraints": ["1 ≤ number of nodes in each list ≤ 100", "0 ≤ Node.val ≤ 9", "no leading zeros except the number 0"],
+  "params": ["l1", "l2"],
+  "starter": "/**\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {\n        return null;\n    }\n}\n",
+  "target": { "time": "n", "space": "n", "note": "the output list itself is O(n); the benchmark time includes building both input lists" },
+  "benchN": "digits in each number",
+  "bench": { "min": 4096, "max": 2097152 },
+  "hints": [
+    "Least significant digit first is exactly the order you add numbers by hand. What do you carry from one column to the next?",
+    "Walk both lists together, adding the two digits plus a carry. The new digit is sum % 10 and the next carry is sum / 10. A dummy head node saves you a special case for the first digit.",
+    "Loop while l1 != null, l2 != null, or carry != 0: start sum at carry, add whichever digits exist and advance those pointers, append a node with sum % 10, and set carry = sum / 10. Return dummy.next."
+  ],
+  "followups": [
+    "What if the digits were stored most significant digit first? Solve it without reversing the inputs (hint: stacks or recursion).",
+    "Why does converting each list to a long and adding fail, and why is BigInteger the wrong answer in an interview?",
+    "How would you subtract or multiply two numbers in this format?"
+  ],
+  "explain": "Grade-school addition maps directly onto the lists because the least significant digit comes first. Walk both lists at once, keeping a carry: sum = carry + (digit from l1, if any) + (digit from l2, if any); append sum % 10 and carry sum / 10. Keep looping while either list has nodes or the carry is non-zero, so a final carry such as 999 + 2 = 1001 still gets its last node and lists of different lengths need no special handling. A dummy head means you never special-case the first node. O(max(m, n)) time and O(max(m, n)) space for the output, O(1) besides that. Converting to long overflows past 18 digits, and BigInteger dodges the question — and its decimal parsing and printing grow superlinearly on huge inputs.",
+  "tags": ["carry", "dummy head", "simultaneous traversal"]
+}

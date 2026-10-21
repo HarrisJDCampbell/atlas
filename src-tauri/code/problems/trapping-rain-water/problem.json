@@ -1,0 +1,29 @@
+{
+  "id": "trapping-rain-water",
+  "title": "Trapping Rain Water",
+  "pattern": "two-pointers",
+  "difficulty": "hard",
+  "statement": "`height` describes a row of bars, each one unit wide, where `height[i]` is the height of bar `i`. After it rains, water collects in the dips between taller bars, and anything that would spill past the first or last bar runs off.\n\nReturn the total units of water held by the row. An empty row holds `0`.",
+  "examples": [
+    { "input": "height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]", "output": "6" },
+    { "input": "height = [4, 2, 0, 3, 2, 5]", "output": "9" }
+  ],
+  "constraints": ["0 ≤ height.length ≤ 2·10^4", "0 ≤ height[i] ≤ 10^5"],
+  "params": ["height"],
+  "starter": "class Solution {\n    public int trap(int[] height) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "1" },
+  "benchN": "height.length",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Think about one bar at a time. How high does the water rise above bar i? What does that depend on?",
+    "The water above bar i is min(tallest bar to its left, tallest bar to its right) - height[i]. Precomputing a leftMax array and a rightMax array gets you O(n) time with O(n) space. Can you drop the arrays?",
+    "Two pointers from both ends, each with a running max. Whichever side currently has the lower bar is limited by its own running max, because the other side is known to have something at least as tall. So add that side's max - height, move it inward, and repeat until the pointers meet."
+  ],
+  "followups": [
+    "Explain the monotonic-stack solution. What does it compute differently: per column, or per horizontal layer?",
+    "Why is it safe to settle the lower side without knowing the true maximum on the other side?",
+    "How would you do the 2-D version, where water sits on a height map grid?"
+  ],
+  "explain": "The water above bar i is min(maxLeft(i), maxRight(i)) - height[i]. Brute force recomputes both maxima for every bar, which is O(n^2); prefix and suffix max arrays bring it to O(n) time and O(n) space. The two-pointer version gets O(1) space. Keep lo, hi, leftMax and rightMax. If height[lo] < height[hi], then the true right-side max for lo is at least height[hi], which is more than height[lo], so lo's level is decided by leftMax alone. Add leftMax - height[lo] (after updating leftMax) and advance lo. Otherwise do the mirror image on hi. Each bar is settled exactly once, so it's O(n) time, O(1) space. A monotonic stack is the other common O(n) answer; it fills water in horizontal layers instead of columns.",
+  "tags": ["two pointers", "prefix max", "monotonic stack"]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "word-break",
+  "title": "Word Break",
+  "pattern": "dp",
+  "difficulty": "medium",
+  "statement": "You are given a string `s` and a list of dictionary words `wordDict`. Return `true` if `s` can be cut into a sequence of one or more pieces where **every piece is a word in the dictionary**, and `false` otherwise.\n\nThe same dictionary word may be used any number of times, and not every dictionary word has to be used.",
+  "examples": [
+    { "input": "s = \"hotdogstand\", wordDict = [\"hot\", \"dog\", \"stand\", \"hotdog\"]", "output": "true" },
+    { "input": "s = \"dogsandcat\", wordDict = [\"dog\", \"dogs\", \"sand\", \"and\", \"cats\"]", "output": "false" },
+    { "input": "s = \"bookbook\", wordDict = [\"book\"]", "output": "true" }
+  ],
+  "constraints": ["1 ≤ s.length ≤ 300", "1 ≤ wordDict.length ≤ 1000", "1 ≤ wordDict[i].length ≤ 20", "s and every word are lowercase English letters", "the words in wordDict are distinct"],
+  "params": ["s", "wordDict"],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public boolean wordBreak(String s, List<String> wordDict) {\n        return false;\n    }\n}\n",
+  "target": { "time": "n", "space": "n", "note": "O(n · L²) for n = s.length and L = the longest dictionary word, because each position only checks the last L cut points and hashes a substring of length ≤ L. L is bounded (≤ 20, and 10 in the benchmark), so it reads as linear. The common DP that tries every earlier cut point j is O(n²) cuts with O(n) substrings each and falls behind on the benchmark; recursion without a memo is exponential and won't finish." },
+  "benchN": "s.length (dictionary fixed at \"a\" … \"aaaaaaaaaa\")",
+  "bench": { "min": 1024, "max": 4194304 },
+  "hints": [
+    "Try to break the string by choosing the first word, then recursing on the rest. On \"aaaa…ab\" with words \"a\", \"aa\", \"aaa\", why does this take forever, and what question is it asking over and over?",
+    "Whether the suffix starting at index i can be broken depends only on i. So there are only n + 1 distinct questions. Let ok[i] mean \"the first i characters can be broken\": ok[0] is true, and ok[i] is true if some dictionary word ends at i and starts at a j with ok[j] true. Put the words in a HashSet for O(1) membership.",
+    "Fill ok[1..n] left to right. For each i, try each cut j before i: if ok[j] and s.substring(j, i) is in the set, mark ok[i] and stop. You don't need every j: the piece s[j..i) can't be longer than the longest dictionary word, so only look back that far. That turns O(n²) cut checks into O(n · maxLen)."
+  ],
+  "followups": [
+    "Return every possible sentence, not just whether one exists. Why can the output be exponentially large, and how do you avoid recomputing shared suffixes?",
+    "The dictionary has 10^5 words with long shared prefixes. How would a trie replace the substring-and-hash step?",
+    "How would you explain the difference between your recursion-with-memo and the bottom-up table to an interviewer? Which is easier to get right under pressure?"
+  ],
+  "explain": "A greedy or plain recursive split fails: \"aaa…ab\" with words \"a\", \"aa\", \"aaa\" has exponentially many ways to split the a's, and recursion tries them all before discovering the trailing b makes it impossible. The fix is to notice that whether a prefix of length i can be split depends only on i. Let ok[i] be true when the first i characters can be split. Then ok[0] = true and ok[i] = true if, for some j < i, ok[j] is true and s.substring(j, i) is a dictionary word. Fill it left to right and return ok[n]. Checking every j is O(n²) cut points, each building an O(n) substring. Bounding j to i - maxLen ≤ j makes it O(n · L) checks of O(L) each, linear for a bounded word length. Space is O(n) for the table plus the HashSet. Java details: build the HashSet once rather than calling List.contains, which is a linear scan; test ok[j] before building the substring so you skip work on dead cut points; and break as soon as ok[i] becomes true. A top-down version with a Boolean[] memo is equally correct.",
+  "tags": ["1-D dp", "string segmentation", "memoization"]
+}

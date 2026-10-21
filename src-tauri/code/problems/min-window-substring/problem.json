@@ -1,0 +1,30 @@
+{
+  "id": "min-window-substring",
+  "title": "Minimum Window Substring",
+  "pattern": "sliding-window",
+  "difficulty": "hard",
+  "statement": "Given strings `s` and `t`, return the shortest **substring** of `s` that contains every character of `t`, **counting repeats**: if `t` has two `'a'`s, the window must contain at least two `'a'`s. Other characters may appear in the window too, and case matters (`'a'` ≠ `'A'`).\n\nIf no such window exists, return the empty string `\"\"`. If several windows share the minimum length, return the **leftmost** one (the one that starts earliest).",
+  "examples": [
+    { "input": "s = \"ADOBECODEBANC\", t = \"ABC\"", "output": "\"BANC\"" },
+    { "input": "s = \"a\", t = \"a\"", "output": "\"a\"" },
+    { "input": "s = \"a\", t = \"aa\"", "output": "\"\"" }
+  ],
+  "constraints": ["1 ≤ s.length, t.length ≤ 10^5", "s and t consist of upper- and lowercase English letters"],
+  "params": ["s", "t"],
+  "starter": "class Solution {\n    public String minWindow(String s, String t) {\n        return \"\";\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "O(|s| + |t|); the count table is fixed-size" },
+  "benchN": "s.length()",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Checking every substring is at least O(n^2). If s[lo..hi] already covers t, is there any point looking at s[lo..hi+1]? And once a window covers t, which end can you try to pull in?",
+    "Use a variable-size window. Expand hi until the window covers t, then shrink lo for as long as it still covers t, recording the smallest window you see. To test coverage in O(1), keep a count of how much of t is still missing instead of comparing whole count tables.",
+    "need[c] = occurrences of c in t; missing = t.length(). For each hi: if need[s[hi]] > 0 before decrementing it, missing--. While missing == 0: record [lo, hi] if it's strictly shorter than the best so far, then increment need[s[lo]], and if it becomes > 0 you've lost a needed char, so missing++. Then lo++."
+  ],
+  "followups": [
+    "Why does recording only strictly shorter windows give you the leftmost one on ties?",
+    "If t is tiny and s is huge, but most characters of s aren't in t, how can you speed it up?",
+    "How would you find the shortest subsequence (not substring) of s that contains t in order?"
+  ],
+  "explain": "Classic expand-then-shrink sliding window. need[c] holds how many more copies of c the window still needs (it goes negative for surplus copies), and missing counts needed characters not yet covered, with multiplicity. Move hi right: decrementing need[s[hi]] from a positive value covers one needed char, so missing--. Whenever missing hits 0, the window is valid. Record it if it's strictly shorter than the best, then advance lo, and if need[s[lo]] climbs back above 0 the window is broken and missing++. Both pointers only move forward, so it's O(|s| + |t|) time, with O(1) space for the 128-entry int table. Valid windows are found in order of their right end, and among windows of equal length the one ending first also starts first, so strict < returns the leftmost. Build the answer with one substring at the end, not on every improvement.",
+  "tags": ["sliding window", "frequency count", "two pointers"]
+}

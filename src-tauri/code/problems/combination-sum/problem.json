@@ -1,0 +1,56 @@
+{
+  "id": "combination-sum",
+  "title": "Combination Sum",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "statement": "You are given an array `candidates` of **distinct** positive integers and a positive integer `target`. Find every combination of candidates whose values add up to exactly `target`.\n\nA candidate may be used **any number of times** within one combination. Two combinations are the same if they use each candidate the same number of times, so `[2, 2, 3]` and `[3, 2, 2]` count once.\n\nReturn every distinct combination. The combinations may be in any order, and so may the numbers inside each one. If no combination works, return an empty list.",
+  "examples": [
+    {
+      "input": "candidates = [2, 3, 6, 7], target = 7",
+      "output": "[[2, 2, 3], [7]]"
+    },
+    {
+      "input": "candidates = [2, 3, 5], target = 8",
+      "output": "[[2, 2, 2, 2], [2, 3, 3], [3, 5]]"
+    },
+    {
+      "input": "candidates = [2], target = 1",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "1 ≤ candidates.length ≤ 30",
+    "2 ≤ candidates[i] ≤ 40",
+    "all candidates are distinct",
+    "1 ≤ target ≤ 40",
+    "the answer has fewer than 150 combinations"
+  ],
+  "params": [
+    "candidates",
+    "target"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> combinationSum(int[] candidates, int target) {\n        return new ArrayList<>();\n    }\n}\n",
+  "target": {
+    "time": "2^t",
+    "space": "t",
+    "note": "Exponential by nature: the search tree has up to about k^(target/min) leaves, so the work is bounded by the output size times its length, not by a polynomial. No benchmark, because timing can't separate two correct backtracking solutions."
+  },
+  "benchN": "candidates.length",
+  "bench": null,
+  "hints": [
+    "If you allow picking any candidate at every step, [2, 2, 3], [2, 3, 2] and [3, 2, 2] all get generated. How could you force each combination to be built in only one order?",
+    "Only allow choices in non-decreasing index order: pass a start index down the recursion and never pick a candidate before it. Because candidates can repeat, the recursive call keeps the same index instead of moving past it.",
+    "Sort the candidates. Recurse with (start, remaining, current list). If remaining is 0, record a copy. Otherwise loop i from start while candidates[i] ≤ remaining: append it, recurse with (i, remaining - candidates[i]), then remove it. Sorting lets you break out of the loop as soon as one candidate is too big."
+  ],
+  "followups": [
+    "What if each candidate could be used at most once, and candidates could contain duplicates? How do you avoid duplicate combinations then?",
+    "If you only needed the number of combinations, not the combinations themselves, how would you compute it — and how is that different from counting ordered sequences?",
+    "What is the worst-case size of the recursion tree, and what bounds its depth?"
+  ],
+  "explain": "Backtracking with a start index. Sort the candidates, then recurse with the remaining sum: at each level try candidates[i] for every i ≥ start, recurse with the same i (so it can be reused) and remaining - candidates[i], and undo the append afterward. Keeping choices in non-decreasing index order means each multiset is produced exactly once, so no deduplication is needed. Because the array is sorted, the loop stops at the first candidate larger than what remains, which prunes whole subtrees. The depth is at most target / min(candidates), and the running time is exponential in the worst case, proportional to the number of tree nodes visited. Space is O(target / min) for the recursion and working list, plus the output. In Java, record new ArrayList<>(cur), not cur, and clone before sorting if you don't want to reorder the caller's array. Recursing with i + 1 instead of i is the classic bug: it silently forbids reuse.",
+  "tags": [
+    "backtracking",
+    "pruning",
+    "unbounded choice"
+  ]
+}

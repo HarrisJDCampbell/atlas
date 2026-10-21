@@ -1,0 +1,30 @@
+{
+  "id": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "pattern": "stack",
+  "difficulty": "easy",
+  "statement": "You are given a string `s` made only of the six characters `(`, `)`, `[`, `]`, `{` and `}`.\n\nReturn `true` if the brackets are **balanced**: every opening bracket is closed by a bracket of the same type, brackets close in the reverse order they were opened (so `([)]` is not balanced), and no closing bracket appears without a matching opener before it.\n\nThe empty string counts as balanced.",
+  "examples": [
+    { "input": "s = \"()\"", "output": "true" },
+    { "input": "s = \"([]{})\"", "output": "true" },
+    { "input": "s = \"(]\"", "output": "false" }
+  ],
+  "constraints": ["0 ≤ s.length ≤ 10^4", "s contains only ()[]{}"],
+  "params": ["s"],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public boolean isValid(String s) {\n        return false;\n    }\n}\n",
+  "target": { "time": "n", "space": "n" },
+  "benchN": "s.length()",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "When you reach a closing bracket, which earlier opening bracket must it match? Is it the first one, or the most recent one still waiting?",
+    "The bracket that must close next is always the most recently opened unclosed one — last in, first out. Keep the unclosed openers on a stack.",
+    "Scan left to right. Push every opener. On a closer, fail if the stack is empty or its top is the wrong type; otherwise pop. At the end the string is balanced only if the stack is empty."
+  ],
+  "followups": [
+    "If the string only contained one bracket type, can you do it in O(1) extra space?",
+    "How would you return the minimum number of insertions needed to make it balanced?",
+    "How would you find the length of the longest balanced substring?"
+  ],
+  "explain": "Walk the string once with a stack of opening brackets. An opener is pushed. A closer must match the opener on top of the stack — if the stack is empty or the types differ, return false; otherwise pop. After the scan, any openers left on the stack were never closed, so the answer is stack.isEmpty(). Each character is pushed and popped at most once: O(n) time, O(n) space in the worst case (all openers). In Java use ArrayDeque<Character> rather than the legacy synchronized Stack class; an odd length is an easy early exit. The tempting alternative — repeatedly deleting \"()\", \"[]\" and \"{}\" until nothing changes — is O(n^2) on deeply nested input.",
+  "tags": ["stack", "matching"]
+}

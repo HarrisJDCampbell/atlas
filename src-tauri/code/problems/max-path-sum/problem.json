@@ -1,0 +1,54 @@
+{
+  "id": "max-path-sum",
+  "title": "Binary Tree Maximum Path Sum",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "statement": "A **path** in a binary tree is a sequence of nodes where each consecutive pair is joined by an edge, and no node appears twice. A path has at least one node and doesn't have to pass through the root. It may go up from one node to a common ancestor and back down the other side.\n\nGiven the `root` of a non-empty binary tree whose values may be negative, return the largest possible **sum of values** along any path.\n\nTrees are written in level order with `null` for a missing child, e.g. `[3, 9, 20, null, null, 15, 7]`.",
+  "examples": [
+    {
+      "input": "root = [1, 2, 3]",
+      "output": "6"
+    },
+    {
+      "input": "root = [-10, 9, 20, null, null, 15, 7]",
+      "output": "42"
+    },
+    {
+      "input": "root = [-3]",
+      "output": "-3"
+    }
+  ],
+  "constraints": [
+    "1 ≤ number of nodes ≤ 3·10^4",
+    "-1000 ≤ Node.val ≤ 1000"
+  ],
+  "params": [
+    "root"
+  ],
+  "starter": "/**\n * class TreeNode { int val; TreeNode left, right; }\n */\nclass Solution {\n    public int maxPathSum(TreeNode root) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "O(h) recursion stack; the bench tree has height n/2"
+  },
+  "benchN": "number of nodes (a zigzag spine with leaves, height n/2)",
+  "bench": {
+    "min": 4096,
+    "max": 2097152
+  },
+  "hints": [
+    "Every path has one highest node, where it bends. If you knew, for each node, the best path going straight down from it on each side, could you score the path that bends there?",
+    "Do a post-order DFS that returns two different things: it returns the best downward path starting at the node (one side only, since a parent can extend only one branch), and it updates a global best with the path that bends at the node (both sides). Drop a negative branch by treating it as 0.",
+    "gain(node) = 0 for null. Otherwise l = max(0, gain(left)), r = max(0, gain(right)); best = max(best, node.val + l + r); return node.val + max(l, r). Start best at Integer.MIN_VALUE, not 0, so an all-negative tree returns its largest single value."
+  ],
+  "followups": [
+    "How would you return the path itself, not just its sum?",
+    "What if the path had to start at the root, or had to go from one leaf to another?",
+    "Your recursion is O(h) deep. What happens on a 10^6-node skewed tree in Java, and how would you make it iterative?"
+  ],
+  "explain": "Every path has a unique highest node where it turns. For each node, compute the best downward chain from it: its value plus the better of its children's chains, where a negative chain counts as 0 (you just don't take it). The best path that bends at the node is val + leftChain + rightChain. Track the maximum of that over all nodes, and return only the one-sided chain to the parent, because a path can't fork. A single post-order DFS does it: O(n) time, O(h) stack. Two traps: start the answer at Integer.MIN_VALUE (all-negative trees), and remember the value you return differs from the value you record. Sums fit in int under these constraints. Use long if the values can be larger.",
+  "tags": [
+    "post-order dfs",
+    "global max"
+  ]
+}

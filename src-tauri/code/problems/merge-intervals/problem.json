@@ -1,0 +1,55 @@
+{
+  "id": "merge-intervals",
+  "title": "Merge Intervals",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "statement": "You are given a list of closed intervals, where `intervals[i] = [start, end]` and `start ≤ end`. The list is in no particular order.\n\nCombine every group of intervals that overlap into one interval covering the whole group, and return the result **sorted by start**. Intervals that only touch, like `[1, 4]` and `[4, 5]`, count as overlapping and merge into `[1, 5]`.",
+  "examples": [
+    {
+      "input": "intervals = [[5, 9], [1, 4], [3, 6], [12, 14]]",
+      "output": "[[1, 9], [12, 14]]"
+    },
+    {
+      "input": "intervals = [[1, 4], [4, 5]]",
+      "output": "[[1, 5]]"
+    },
+    {
+      "input": "intervals = [[2, 3], [1, 10], [4, 5]]",
+      "output": "[[1, 10]]"
+    }
+  ],
+  "constraints": [
+    "1 ≤ intervals.length ≤ 10^5",
+    "0 ≤ start ≤ end ≤ 10^4"
+  ],
+  "params": [
+    "intervals"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int[][] merge(int[][] intervals) {\n        return new int[0][];\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "n",
+    "note": "the sort dominates; the merge pass is linear"
+  },
+  "benchN": "intervals.length",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "If the intervals were already sorted by start, where would every interval that overlaps the current one have to be?",
+    "Sort by start. Then an interval either overlaps the last interval you've output (its start is ≤ that interval's end) or it starts a new group, and it can never overlap anything earlier.",
+    "Sort with a comparator on a[0]. Walk the sorted list keeping a result list: if it's empty or last[1] < cur[0], append a copy of cur; otherwise set last[1] = max(last[1], cur[1]). Convert the list to int[][] at the end."
+  ],
+  "followups": [
+    "How would you insert one new interval into an already sorted, already merged list in O(n) without re-sorting?",
+    "Intervals arrive one at a time and you must report the merged set after each one. Which data structure would you use?",
+    "What would you change if the intervals were half-open, so [1, 4] and [4, 5] must stay separate?"
+  ],
+  "explain": "Sort by start. After sorting, an interval can only overlap the group currently being built, because every earlier group ended before something that starts no later than this interval. So keep the last merged interval: if the next one starts at or before its end, extend the end to the larger of the two ends (max matters for nested intervals like [1, 10] containing [2, 3]); otherwise start a new group. O(n log n) for the sort, O(n) for the pass, O(n) for the output. In Java, sort with (a, b) -> Integer.compare(a[0], b[0]) rather than a[0] - b[0], which overflows for extreme values, and return list.toArray(new int[0][]).",
+  "tags": [
+    "sorting",
+    "sweep",
+    "interval merge"
+  ]
+}

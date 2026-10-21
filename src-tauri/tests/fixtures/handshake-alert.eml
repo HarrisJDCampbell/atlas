@@ -1,0 +1,30 @@
+Message-ID: <synthetic-fixture-001@atlas.test>
+From: Handshake <notifications@joinhandshake.com>
+To: student@example.edu
+Subject: 3 new jobs match your preferences
+Date: Mon, 19 Oct 2026 09:12:00 -0700
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1"
+
+--b1
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+<!-- SYNTHETIC TEST FIXTURE: fictional employers, not a real email. -->
+<h1>Jobs picked for you</h1>
+<table>
+<tr><td><b>Software Engineering Intern (Summer 2027)</b><br>Northwind Robotics &middot; San Francisco, CA &middot; $48/hr<br>
+Open to students graduating Dec 2027 - Jun 2028. Work on our TypeScript and Rust fleet dashboard. Apply by Nov 15, 2026.<br>
+<a href="https://app.joinhandshake.com/jobs/1111111?ref=email">View job</a></td></tr>
+<tr><td><b>Marketing &amp; Social Media Intern</b><br>Bluefin Media &middot; Remote &middot; Unpaid<br>
+Help grow our Instagram presence. Course credit available.<br>
+<a href="https://app.joinhandshake.com/jobs/2222222?ref=email">View job</a></td></tr>
+<tr><td><b>Associate Software Engineer, New Grad 2026</b><br>Lumen Data &middot; Oakland, CA &middot; $135,000/yr<br>
+For candidates graduating between Dec 2025 and Aug 2026.<br>
+<a href="https://app.joinhandshake.com/jobs/3333333?ref=email">View job</a></td></tr>
+</table>
+<p><a href="https://app.joinhandshake.com/settings/notifications">Notification settings</a> &middot;
+<a href="https://app.joinhandshake.com/unsubscribe?u=abc">Unsubscribe</a></p>
+<img src="https://t.joinhandshake.com/open.gif" width="1" height="1">
+</body></html>
+--b1--

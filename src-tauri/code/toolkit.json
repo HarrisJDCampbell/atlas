@@ -1,0 +1,282 @@
+[
+  {
+    "title": "Collections you actually use",
+    "items": [
+      {
+        "name": "ArrayList",
+        "code": "List<Integer> list = new ArrayList<>();\nlist.add(5);\nlist.add(0, 9);                       // insert at index: O(n)\nint last = list.get(list.size() - 1);\nlist.remove(list.size() - 1);         // pop from the end: O(1)",
+        "note": "Backed by an array: get, set and append are O(1), and inserting or removing in the middle is O(n). On a List<Integer>, remove(int) removes by index. Use remove(Integer.valueOf(x)) to remove by value."
+      },
+      {
+        "name": "ArrayDeque as a stack",
+        "code": "Deque<Integer> stack = new ArrayDeque<>();\nstack.push(1);\nstack.push(2);\nint top = stack.peek();               // 2\nint popped = stack.pop();             // 2",
+        "note": "Use this instead of java.util.Stack, which is synchronized and legacy. push, pop and peek all work on the head. On an empty deque, peek() returns null and pop() throws. ArrayDeque rejects null elements."
+      },
+      {
+        "name": "ArrayDeque as a queue",
+        "code": "Deque<int[]> q = new ArrayDeque<>();\nq.offer(new int[]{0, 0});             // add at the tail\nwhile (!q.isEmpty()) {\n    int[] cur = q.poll();             // remove from the head\n}",
+        "note": "FIFO order for BFS. Because it's a Deque, offerFirst/pollLast are there for 0-1 BFS and the monotonic-deque sliding-window maximum. Don't mix push (head) with offer (tail) unless you mean to."
+      },
+      {
+        "name": "HashMap counting",
+        "code": "Map<String, Integer> cnt = new HashMap<>();\ncnt.merge(word, 1, Integer::sum);     // put 1, or add 1\nint c = cnt.getOrDefault(\"x\", 0);\nif (cnt.merge(word, -1, Integer::sum) == 0) cnt.remove(word);",
+        "note": "merge is the shortest correct counter. int c = cnt.get(k) throws NullPointerException on a missing key. Remove keys that reach 0 when you use size() as a distinct count. Iteration order (entrySet, keySet) is unspecified: use TreeMap for sorted keys and LinkedHashMap for insertion order."
+      },
+      {
+        "name": "HashMap of lists (adjacency, groups)",
+        "code": "Map<Integer, List<Integer>> adj = new HashMap<>();\nadj.computeIfAbsent(u, k -> new ArrayList<>()).add(v);\nList<Integer> nbrs = adj.getOrDefault(9, List.of());",
+        "note": "computeIfAbsent creates the list only the first time and returns the stored list, so you can chain .add. getOrDefault with List.of() avoids null checks when you only read."
+      },
+      {
+        "name": "HashSet",
+        "code": "Set<Integer> seen = new HashSet<>();\nboolean isNew = seen.add(x);          // false if it was already there\nboolean has = seen.contains(x);\nseen.remove(x);",
+        "note": "add's return value replaces a separate contains check. Elements need correct equals and hashCode (records get both for free). Arrays use identity hashing, so convert them before using them as keys."
+      },
+      {
+        "name": "TreeMap navigation",
+        "code": "TreeMap<Integer, String> tm = new TreeMap<>(Map.of(10, \"a\", 20, \"b\"));\nInteger fk = tm.floorKey(15);         // 10: greatest key <= 15, or null\nInteger ck = tm.ceilingKey(15);       // 20: smallest key >= 15, or null\nInteger lk = tm.lowerKey(10);         // null: strictly less\nMap.Entry<Integer, String> lo = tm.firstEntry(), hi = tm.pollLastEntry();",
+        "note": "Every operation is O(log n). Store the results in Integer, not int: a missing key returns null, and unboxing that throws. headMap(k) excludes k and tailMap(k) includes it."
+      },
+      {
+        "name": "TreeSet",
+        "code": "TreeSet<Integer> ts = new TreeSet<>(List.of(1, 5, 9));\nInteger f = ts.floor(6);              // 5\nInteger h = ts.higher(5);             // 9\nint min = ts.first(), max = ts.last();\nSortedSet<Integer> below = ts.headSet(5);   // [1]",
+        "note": "A sorted set with O(log n) add, remove and nearest-neighbour queries. Like any set it drops duplicates, so use a TreeMap<value, count> as a multiset. It decides equality with compareTo, not equals."
+      },
+      {
+        "name": "PriorityQueue: min, max, custom",
+        "code": "PriorityQueue<Integer> minHeap = new PriorityQueue<>();\nPriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());\nPriorityQueue<int[]> byDist = new PriorityQueue<>(Comparator.comparingInt(p -> p[0]));\nbyDist.offer(new int[]{3, 7});\nint[] nearest = byDist.poll();",
+        "note": "offer and poll are O(log n), peek is O(1), and remove(Object) and contains are O(n). Iterating or printing shows heap order, not sorted order. Never use (a, b) -> b - a for a max-heap, because it overflows."
+      },
+      {
+        "name": "LinkedHashMap as an LRU cache",
+        "code": "Map<Integer, Integer> lru = new LinkedHashMap<>(16, 0.75f, true) {\n    @Override protected boolean removeEldestEntry(Map.Entry<Integer, Integer> e) {\n        return size() > 100;\n    }\n};",
+        "note": "accessOrder = true moves an entry to the end on every get or put, and removeEldestEntry evicts from the front. It's fine to mention, but interviewers usually want the HashMap plus doubly-linked-list version written by hand."
+      }
+    ]
+  },
+  {
+    "title": "Sorting & comparators",
+    "items": [
+      {
+        "name": "Arrays.sort on int[]",
+        "code": "int[] a = {3, 1, 2};\nArrays.sort(a);                       // ascending; no comparator overload\nArrays.sort(a, 0, 2);                 // sort only [0, 2)",
+        "note": "Primitive arrays use dual-pivot quicksort: O(n log n), not stable (stability doesn't matter for primitives). To sort descending, sort ascending and reverse in place, or box the values."
+      },
+      {
+        "name": "Arrays.sort on Integer[] / objects",
+        "code": "Integer[] b = {3, 1, 2};\nArrays.sort(b, Collections.reverseOrder());\nString[] words = {\"bb\", \"a\"};\nArrays.sort(words);                   // lexicographic",
+        "note": "Object arrays use TimSort, which is stable and accepts a Comparator. Boxing an int[] costs time and memory, so on large inputs prefer to sort the primitives and reverse."
+      },
+      {
+        "name": "Sorting int[][] by a column",
+        "code": "int[][] iv = {{3, 4}, {1, 2}};\nArrays.sort(iv, (x, y) -> Integer.compare(x[0], y[0]));\nArrays.sort(iv, Comparator.comparingInt(x -> x[0]));",
+        "note": "The standard first step for interval problems. The two forms are equivalent. Writing x[0] - y[0] overflows when values are near ±2^31."
+      },
+      {
+        "name": "Multi-key sort",
+        "code": "List<int[]> pts = new ArrayList<>(List.of(new int[]{1, 2}, new int[]{1, 5}));\npts.sort((p, q) -> p[0] != q[0]\n        ? Integer.compare(p[0], q[0])        // first key ascending\n        : Integer.compare(q[1], p[1]));      // tie-break descending",
+        "note": "Compare on the first key, then fall back to the next. Swapping the arguments (q, p) reverses one key without reversing the whole comparator."
+      },
+      {
+        "name": "comparingInt / thenComparing",
+        "code": "List<String> ws = new ArrayList<>(List.of(\"bb\", \"a\", \"ab\"));\nws.sort(Comparator.comparingInt(String::length)\n        .thenComparing(Comparator.naturalOrder()));   // [a, ab, bb]",
+        "note": "Builds a chained comparator without ternaries. thenComparing only runs when the earlier keys tie. The int-specialised comparingInt avoids boxing."
+      },
+      {
+        "name": "reversed() and the lambda inference trap",
+        "code": "ws.sort(Comparator.comparing(String::length).reversed());\nws.sort(Comparator.comparing((String s) -> s.length()).reversed());\n// Comparator.comparing(s -> s.length()).reversed() won't compile: s is inferred as Object",
+        "note": ".reversed() breaks target typing, so an untyped lambda parameter becomes Object. Use a method reference or an explicit parameter type. reversed() flips the whole chain built so far."
+      },
+      {
+        "name": "Integer.compare, never subtraction",
+        "code": "Comparator<Integer> safe = (x, y) -> Integer.compare(x, y);\nComparator<Integer> broken = (x, y) -> x - y;    // MAX_VALUE - (-1) wraps negative",
+        "note": "Subtraction looks fine on small tests and silently mis-sorts on extreme values. Long.compare and Double.compare exist too, and Double.compare handles NaN and -0.0 consistently."
+      },
+      {
+        "name": "Sorting a List and sorting chars",
+        "code": "List<Integer> nums = new ArrayList<>(List.of(3, 1, 2));\nCollections.sort(nums);               // or nums.sort(null)\nnums.sort(Comparator.reverseOrder());\nchar[] cs = \"dcba\".toCharArray();\nArrays.sort(cs);\nString sorted = new String(cs);       // \"abcd\" ",
+        "note": "List.sort takes a Comparator, and null means natural order. Sorting the chars of a string gives an anagram key in O(k log k), and an int[26] count signature is O(k)."
+      }
+    ]
+  },
+  {
+    "title": "Strings & chars",
+    "items": [
+      {
+        "name": "StringBuilder",
+        "code": "StringBuilder sb = new StringBuilder();\nsb.append(\"ab\").append('c').append(1);    // \"abc1\"\nsb.insert(0, 'x').reverse();\nsb.setLength(sb.length() - 1);            // drop the last char\nsb.deleteCharAt(0);\nString out = sb.toString();",
+        "note": "Use it whenever you build a string in a loop, because s += c is O(n) per step, O(n^2) in total. Methods mutate the builder and return this. StringBuilder has no equals override, so compare the toString() results."
+      },
+      {
+        "name": "toCharArray and back",
+        "code": "char[] cs = s.toCharArray();\ncs[0] = 'z';                          // a copy: s is unchanged\nString back = new String(cs);         // NOT cs.toString()\nString one = String.valueOf(cs, 1, 2);",
+        "note": "Strings are immutable, so edit a char[] and rebuild. cs.toString() prints something like [C@1b6d3586. Use new String(cs) or String.valueOf(cs)."
+      },
+      {
+        "name": "char arithmetic",
+        "code": "int idx = c - 'a';                    // 'a'..'z' -> 0..25\nchar letter = (char) ('a' + idx);     // cast back, or you print a number\nint digit = '7' - '0';                // 7\nchar upper = (char) (c - 'a' + 'A');",
+        "note": "char is a 16-bit unsigned numeric type, so any char + int expression is an int. Printing 'a' + 1 shows 98. Compound assignment (c += 1) casts back to char for you."
+      },
+      {
+        "name": "Character helpers",
+        "code": "boolean ok = Character.isLetterOrDigit(c);\nboolean d = Character.isDigit(c), l = Character.isLetter(c);\nchar lower = Character.toLowerCase(c);\nint val = Character.getNumericValue('9');   // 9",
+        "note": "The standard filters for valid-palindrome-style problems. They're static methods on Character and take a char (or a code point int). They also accept Unicode letters and digits, which is fine for interviews."
+      },
+      {
+        "name": "String <-> number",
+        "code": "String a = String.valueOf(42);       // also Integer.toString(42)\nint n = Integer.parseInt(\"-17\");\nlong big = Long.parseLong(\"9000000000\");\nString bin = Integer.toBinaryString(5);   // \"101\"\nint fromBin = Integer.parseInt(\"101\", 2);",
+        "note": "parseInt throws NumberFormatException on bad input or overflow. When you implement atoi yourself, accumulate in a long or check before multiplying by 10. \"\" + n works but hides your intent."
+      },
+      {
+        "name": "split pitfalls",
+        "code": "String[] words = text.trim().split(\"\\\\s+\");     // any run of whitespace\nString[] parts = \"a.b\".split(\"\\\\.\");          // regex: escape . | * + ?\nString[] keep = \"a,b,,\".split(\",\", -1);       // -1 keeps trailing empties (4 parts)",
+        "note": "split takes a regex, so split(\".\") returns an empty array. Trailing empty strings are dropped unless the limit is negative. A leading delimiter still produces a leading \"\", so trim() before splitting on whitespace."
+      },
+      {
+        "name": "int[26] counts",
+        "code": "int[] cnt = new int[26];\nfor (char ch : s.toCharArray()) cnt[ch - 'a']++;\nfor (char ch : t.toCharArray()) cnt[ch - 'a']--;\nboolean anagram = Arrays.stream(cnt).allMatch(x -> x == 0);",
+        "note": "Faster than a HashMap and free of boxing. Compare two count arrays with Arrays.equals(c1, c2), never c1 == c2. Arrays.toString(cnt) makes a hashable group key. Use int[128] when the input isn't just lowercase letters."
+      },
+      {
+        "name": "Comparing strings",
+        "code": "boolean same = a.equals(b);           // never a == b\nboolean ci = a.equalsIgnoreCase(b);\nint order = a.compareTo(b);           // < 0 if a sorts first\nboolean safe = \"x\".equals(maybeNull); // literal first avoids NPE",
+        "note": "== compares references and only appears to work for literals and interned strings. compareTo is lexicographic by UTF-16 unit, so uppercase letters sort before lowercase ones."
+      },
+      {
+        "name": "Everyday String methods",
+        "code": "String mid = s.substring(1, 3);       // [1, 3), O(length) copy\nint at = s.indexOf(\"ll\");             // -1 if absent\nboolean has = s.contains(\"ell\"), pre = s.startsWith(\"he\");\nString joined = String.join(\",\", List.of(\"a\", \"b\"));\nString rep = \"ab\".repeat(3);",
+        "note": "substring copies the characters (since Java 7u6), so calling it in a loop is O(n) per call. charAt(i) is O(1). For palindromes or windows, pass indices around instead of substrings."
+      }
+    ]
+  },
+  {
+    "title": "Numbers",
+    "items": [
+      {
+        "name": "Overflow: widen before the operation",
+        "code": "long prod = (long) a * b;             // cast first, not after\nlong sum = 0;\nfor (int x : nums) sum += x;\nint mid = lo + (hi - lo) / 2;",
+        "note": "int math wraps silently. long total = a * b still overflows, because the multiplication happens in int. Reach for long whenever a sum or product can pass about 2.1e9 (10^5 values of 10^5 already does)."
+      },
+      {
+        "name": "Sentinels: MAX_VALUE / MIN_VALUE",
+        "code": "int best = Integer.MAX_VALUE;         // running min\nint worst = Integer.MIN_VALUE;        // running max\nlong inf = Long.MAX_VALUE / 2;        // safe to add to once\nint[] dist = new int[n]; Arrays.fill(dist, Integer.MAX_VALUE);",
+        "note": "MAX_VALUE + 1 wraps to MIN_VALUE, so check `dist[u] != Integer.MAX_VALUE` before relaxing an edge, or use a smaller infinity (n + 1, amount + 1, MAX / 2)."
+      },
+      {
+        "name": "Math.floorMod and negative %",
+        "code": "int r = -7 % 3;                       // -1: sign follows the dividend\nint m = Math.floorMod(-7, 3);         // 2: always in [0, n)\nint left = Math.floorMod(i - 1, n);   // circular index stepping left\nboolean odd = x % 2 != 0;             // x % 2 == 1 fails for negatives",
+        "note": "Java's / truncates toward zero and % follows it. Math.floorDiv and Math.floorMod round toward negative infinity, which is the behaviour you want for wrap-around indexing and for Python-style mod."
+      },
+      {
+        "name": "Mod 1_000_000_007",
+        "code": "final int MOD = 1_000_000_007;\nlong ways = (a + b) % MOD;\nlong prod = (long) a * b % MOD;\nlong diff = ((a - b) % MOD + MOD) % MOD;      // keep it non-negative",
+        "note": "Reduce after every add or multiply. Two values below MOD can sum past int, and their product needs long. Subtraction can go negative, so add MOD back."
+      },
+      {
+        "name": "Ceiling division",
+        "code": "int pages = (total + per - 1) / per;      // positive ints only\nint pages2 = (total - 1) / per + 1;       // same, no overflow; total >= 1\nlong pages3 = (long) Math.ceil((double) total / per);   // works, but floating",
+        "note": "Math.ceilDiv only exists from Java 18, so in Java 17 write it yourself. The first form can overflow when total is near MAX_VALUE. Avoid the double version when exactness matters."
+      },
+      {
+        "name": "Bit tricks",
+        "code": "boolean pow2 = x > 0 && (x & (x - 1)) == 0;\nint lowest = x & -x;                  // lowest set bit\nint ones = Integer.bitCount(x);\nboolean bitSet = (mask >> i & 1) == 1;\nmask |= 1 << i;                       // set bit i\nmask &= ~(1 << i);                    // clear bit i",
+        "note": "x & (x - 1) clears the lowest set bit. Use 1L << i for i ≥ 31. Bitmask subsets of n ≤ 20 items fit in an int: loop m from 0 to (1 << n) - 1. Shift precedence is lower than + but higher than &, so add parentheses when you mix them."
+      },
+      {
+        "name": "XOR and >>>",
+        "code": "int single = 0;\nfor (int v : nums) single ^= v;       // pairs cancel: v ^ v == 0\nint unsignedHalf = -16 >>> 1;         // shifts in zeros\nint signedHalf = -16 >> 1;            // -8: keeps the sign",
+        "note": "XOR is associative and commutative, and x ^ x == 0, which solves single-number problems in O(1) space. >>> treats the int as unsigned. 1 << 32 == 1, because the shift distance is masked to 5 bits."
+      },
+      {
+        "name": "Integer edge cases",
+        "code": "boolean stillNeg = Math.abs(Integer.MIN_VALUE) < 0;   // true\nint checked = Math.addExact(1, 2);    // throws ArithmeticException on overflow\nlong safeAbs = Math.abs((long) Integer.MIN_VALUE);\nboolean close = Math.abs(0.1 + 0.2 - 0.3) < 1e-9;",
+        "note": "MIN_VALUE has no positive int counterpart. addExact and multiplyExact are handy when you'd rather crash than be wrong. Never compare doubles with ==."
+      }
+    ]
+  },
+  {
+    "title": "Arrays",
+    "items": [
+      {
+        "name": "Arrays.fill",
+        "code": "int[] dist = new int[n];\nArrays.fill(dist, -1);\nArrays.fill(dist, 1, 3, 0);           // range [1, 3)\nboolean[] seen = new boolean[n];      // already false",
+        "note": "New arrays are zeroed (0, false, null), so only fill when you need a different start value. fill on a 2-D array copies the same reference into every slot, as the next item shows."
+      },
+      {
+        "name": "2-D arrays",
+        "code": "int[][] grid = new int[rows][cols];  // independent rows, all 0\nfor (int[] row : grid) Arrays.fill(row, -1);\nint[][] jag = new int[rows][];        // rows are null until assigned\njag[0] = new int[]{1, 2, 3};\n// Arrays.fill(grid, new int[cols]) would share ONE row everywhere",
+        "note": "grid.length is the number of rows and grid[0].length the number of columns, so check grid.length == 0 first. The usual direction array is int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}}."
+      },
+      {
+        "name": "Copies",
+        "code": "int[] part = Arrays.copyOfRange(a, 1, 3);    // [1, 3)\nint[] bigger = Arrays.copyOf(a, a.length * 2); // pads with 0\nint[] same = a.clone();\nint[][] deep = new int[g.length][];\nfor (int r = 0; r < g.length; r++) deep[r] = g[r].clone();",
+        "note": "clone() and copyOf are shallow. On a 2-D array they copy the row references, so the copy shares rows with the original. Copy each row to get a real 2-D copy."
+      },
+      {
+        "name": "Printing for debugging",
+        "code": "System.out.println(Arrays.toString(a));       // [1, 2, 3]\nSystem.out.println(Arrays.deepToString(g));   // [[1, 2], [3, 4]]\nSystem.out.println(list);                     // collections print themselves",
+        "note": "Printing an array directly gives [I@6d06d69c (type plus identity hash). Use deepToString for nested arrays, because toString on int[][] prints the row addresses."
+      },
+      {
+        "name": "Equality",
+        "code": "boolean same = Arrays.equals(a, b);           // element-wise\nboolean deepSame = Arrays.deepEquals(g1, g2);\nboolean identity = a.equals(b);               // false: reference compare",
+        "note": "Arrays inherit equals and hashCode from Object, so they compare and hash by identity. To use one as a map key, wrap it with Arrays.toString or a List, or use a record of its parts."
+      },
+      {
+        "name": "Streams for quick stats",
+        "code": "int sum = Arrays.stream(a).sum();             // int: can overflow\nlong safeSum = Arrays.stream(a).asLongStream().sum();\nint max = Arrays.stream(a).max().getAsInt();\nint[] sq = Arrays.stream(a).map(x -> x * x).toArray();",
+        "note": "Fine for setup lines, but a plain loop is faster and shows the interviewer more. getAsInt() throws on an empty array."
+      },
+      {
+        "name": "int[] <-> List<Integer>",
+        "code": "List<Integer> boxed = Arrays.stream(a).boxed().collect(Collectors.toList());\nint[] back = boxed.stream().mapToInt(Integer::intValue).toArray();\nList<int[]> pairs = new ArrayList<>();\nint[][] arr = pairs.toArray(new int[0][]);",
+        "note": "Arrays.asList(int[]) does not do this. It gives a List<int[]> with one element. Collectors.toList() gives a mutable list, while Java 16's .toList() gives an unmodifiable one."
+      },
+      {
+        "name": "Prefix sums",
+        "code": "long[] pre = new long[n + 1];\nfor (int i = 0; i < n; i++) pre[i + 1] = pre[i] + a[i];\nlong rangeSum = pre[r + 1] - pre[l];          // sum of a[l..r] inclusive",
+        "note": "Pad by one so pre[0] = 0 and no range needs a special case. Combined with a HashMap<prefix, count>, this solves subarray-sum-equals-k in O(n), even with negative numbers."
+      }
+    ]
+  },
+  {
+    "title": "Java 17 conveniences",
+    "items": [
+      {
+        "name": "var",
+        "code": "var map = new HashMap<String, List<Integer>>();\nfor (var e : map.entrySet()) {\n    var key = e.getKey();\n}",
+        "note": "Local type inference only, never for fields or parameters. Put the type arguments on the right: var m = new HashMap<>() infers HashMap<Object, Object>. It saves typing on long Map.Entry types in timed interviews."
+      },
+      {
+        "name": "Records as tuple keys",
+        "code": "record Point(int r, int c) {}\nSet<Point> seen = new HashSet<>();\nseen.add(new Point(1, 2));\nboolean hit = seen.contains(new Point(1, 2));   // true\nMap<Point, Integer> memo = new HashMap<>();",
+        "note": "A record generates equals, hashCode, toString and accessors (p.r()), which makes it the clean (row, col) or (i, j) memo key. It's better than an \"r,c\" string key and safer than an int[] key, which uses identity hashing. Records can be declared locally inside a method."
+      },
+      {
+        "name": "Records in a heap",
+        "code": "record State(int node, int dist) {}\nPriorityQueue<State> pq = new PriorityQueue<>(Comparator.comparingInt(State::dist));\npq.offer(new State(0, 0));\nState s = pq.poll();",
+        "note": "More readable than int[]{node, dist} with magic indices, and the comparator reads like English. Record fields are final, so to change one you create a new record."
+      },
+      {
+        "name": "Enhanced switch",
+        "code": "String kind = switch (c) {\n    case '(', '[', '{' -> \"open\";\n    case ')', ']', '}' -> \"close\";\n    default -> \"other\";\n};",
+        "note": "Arrow cases never fall through, several labels can share a case, and the switch is an expression that yields a value. It must be exhaustive (hence the default). Old colon-style cases still fall through without break."
+      },
+      {
+        "name": "List.of / Map.of / Set.of are immutable",
+        "code": "List<Integer> fixed = List.of(1, 2, 3);           // add/set/remove throw\nList<Integer> mutable = new ArrayList<>(List.of(1, 2, 3));\nMap<Character, Character> close = Map.of(')', '(', ']', '[', '}', '{');\nSet<String> vowels = Set.of(\"a\", \"e\", \"i\", \"o\", \"u\");",
+        "note": "Mutating them throws UnsupportedOperationException. They reject null elements, and even fixed.contains(null) throws NullPointerException. Set.of and Map.of throw on duplicate entries, and their iteration order is unspecified."
+      },
+      {
+        "name": "Pattern-matching instanceof",
+        "code": "if (o instanceof String str && !str.isEmpty()) {\n    int len = str.length();\n}",
+        "note": "The test, cast and binding happen in one step. It's mostly useful in equals: `return o instanceof Point p && p.r == r && p.c == c;`."
+      },
+      {
+        "name": "Stream one-liners",
+        "code": "List<Integer> evens = nums.stream().filter(x -> x % 2 == 0).toList();   // unmodifiable\nlong vowelCount = s.chars().filter(ch -> \"aeiou\".indexOf(ch) >= 0).count();\nMap<Integer, Long> freq = nums.stream()\n        .collect(Collectors.groupingBy(x -> x, Collectors.counting()));",
+        "note": "Stream.toList() (Java 16+) returns an unmodifiable list. s.chars() streams ints, not chars. Streams are fine for setup lines, but write the core algorithm as plain loops so the complexity is obvious."
+      }
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "id": "char-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "statement": "You get a string `s` of uppercase English letters and an integer `k`. You may change **at most `k`** characters of `s`, each to any uppercase letter you like.\n\nReturn the length of the longest substring that can be made of one repeated letter after those changes. Only the length matters, not which letters you changed.",
+  "examples": [
+    { "input": "s = \"ABAB\", k = 2", "output": "4" },
+    { "input": "s = \"AABABBA\", k = 1", "output": "4" }
+  ],
+  "constraints": ["1 ≤ s.length ≤ 10^5", "s consists of uppercase English letters", "0 ≤ k ≤ s.length"],
+  "params": ["s", "k"],
+  "starter": "class Solution {\n    public int characterReplacement(String s, int k) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "O(1) space: a 26-entry count table" },
+  "benchN": "s.length()",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "For one fixed substring, how many changes does it need to become a single letter? Which letter should you keep?",
+    "A window needs (length - count of its most frequent letter) changes. It's valid when that is ≤ k. Slide a window with a 26-entry count table: grow it on the right, and move the left edge when it becomes invalid.",
+    "Track maxFreq, the highest letter count seen in any window so far, and never decrease it. When (hi - lo + 1) - maxFreq > k, move lo forward by one, so the window slides rather than shrinks. The answer is the largest window size reached. A stale maxFreq can't produce a wrong answer, because the window only grows when a real count beats it."
+  ],
+  "followups": [
+    "Why is it safe never to decrease maxFreq when the left edge moves?",
+    "Without that trick, recompute the max over 26 counts each step. What does it cost, and is it fine in an interview?",
+    "What if the string can be any Unicode, or you must also return which substring and which letter?"
+  ],
+  "explain": "A window s[lo..hi] can be turned into one letter with (length - maxCount) changes, where maxCount is the count of its most common letter. So you want the longest window with length - maxCount ≤ k. Slide hi forward, updating a 26-entry count array and maxFreq. If the window needs more than k changes, advance lo by one. The window then keeps its size, so it never gets smaller than the best found. maxFreq is never decreased. It may overstate the current window's max, but the answer only grows when some letter's real count exceeds the old maxFreq, so a stale value can't produce a wrong length. O(n) time, O(1) space. Recomputing the max over all 26 counts each step is O(26n), which is also fine and easier to defend if you aren't sure of the argument. Index the table with c - 'A'.",
+  "tags": ["sliding window", "frequency count", "greedy"]
+}

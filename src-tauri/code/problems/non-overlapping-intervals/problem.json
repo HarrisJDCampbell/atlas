@@ -1,0 +1,55 @@
+{
+  "id": "non-overlapping-intervals",
+  "title": "Non-overlapping Intervals",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "statement": "You are given a list of intervals, where `intervals[i] = [start, end]` and `start < end`. Two intervals overlap if they share more than a single endpoint, so `[1, 2]` and `[2, 3]` do **not** overlap.\n\nReturn the smallest number of intervals you must remove so that none of the remaining intervals overlap.",
+  "examples": [
+    {
+      "input": "intervals = [[1, 3], [2, 4], [3, 5], [1, 5]]",
+      "output": "2"
+    },
+    {
+      "input": "intervals = [[1, 2], [2, 3], [3, 4]]",
+      "output": "0"
+    },
+    {
+      "input": "intervals = [[1, 10], [2, 3], [4, 5], [6, 7]]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 ≤ intervals.length ≤ 10^5",
+    "-5·10^4 ≤ start < end ≤ 5·10^4"
+  ],
+  "params": [
+    "intervals"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int eraseOverlapIntervals(int[][] intervals) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "1",
+    "note": "the sort dominates (plus the sort's own stack)"
+  },
+  "benchN": "intervals.length",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "Removing as few as possible is the same as keeping as many as possible. If you had to pick the first interval to keep, which one leaves the most room for everything else?",
+    "Keep the interval that ends earliest; any optimal answer can swap its first interval for that one without losing anything. That greedy choice suggests sorting by end, not by start.",
+    "Sort by end. Track the end of the last kept interval. For each interval, if its start ≥ that end, keep it and update the end; otherwise it must be removed. The answer is the total minus the number kept."
+  ],
+  "followups": [
+    "Why does sorting by start and keeping the earliest-starting interval fail? Give a counterexample.",
+    "Could you also sort by start and fix collisions as you go? What would you keep when two intervals collide?",
+    "This is the activity-selection problem. How would you prove the greedy choice is optimal in an interview?"
+  ],
+  "explain": "Minimising removals means maximising how many intervals you keep with no overlaps. Sort by end time and greedily keep each interval whose start is at or after the end of the last one kept. Exchange argument: take any optimal set and replace its earliest-ending interval with the globally earliest-ending one; it ends no later, so nothing else in the set conflicts, and the count stays the same. Repeat on the rest. O(n log n) for the sort, then one pass. Use >= because touching intervals don't overlap. Sort with Integer.compare(a[1], b[1]); subtracting can overflow. Sorting by start instead fails on [[1, 100], [2, 3], [4, 5]], where keeping [1, 100] first blocks two others.",
+  "tags": [
+    "greedy",
+    "sorting",
+    "activity selection"
+  ]
+}

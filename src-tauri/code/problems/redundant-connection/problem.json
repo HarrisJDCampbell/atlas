@@ -1,0 +1,57 @@
+{
+  "id": "redundant-connection",
+  "title": "Redundant Connection",
+  "pattern": "design",
+  "difficulty": "medium",
+  "statement": "An undirected graph has `n` nodes labelled `1` to `n`. It started out as a **tree** (connected, no cycles), and then one extra edge was added between two different nodes that weren't already directly connected. So `edges` has exactly `n` entries, each `[u, v]`.\n\nReturn an edge you can delete so that what's left is a tree again. Several edges usually qualify (any edge on the cycle); return the one that appears **last** in `edges`, exactly as it is written there.",
+  "examples": [
+    {
+      "input": "edges = [[1, 2], [1, 3], [3, 4], [2, 4], [4, 5]]",
+      "output": "[2, 4]"
+    },
+    {
+      "input": "edges = [[2, 3], [1, 2], [3, 1]]",
+      "output": "[3, 1]"
+    },
+    {
+      "input": "edges = [[1, 4], [3, 4], [1, 3], [1, 2], [4, 5]]",
+      "output": "[1, 3]"
+    }
+  ],
+  "constraints": [
+    "3 ≤ n == edges.length ≤ 10^5",
+    "1 ≤ u, v ≤ n, u ≠ v",
+    "no edge appears twice",
+    "the graph is connected"
+  ],
+  "params": [
+    "edges"
+  ],
+  "starter": "class Solution {\n    public int[] findRedundantConnection(int[][] edges) {\n        return new int[0];\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "O(n · α(n)) with path compression and union by rank; α(n), the inverse Ackermann function, is at most 4 for any real input, so it is effectively linear"
+  },
+  "benchN": "edges.length (= number of nodes)",
+  "bench": {
+    "min": 4096,
+    "max": 2097152
+  },
+  "hints": [
+    "Add the edges one at a time in input order. When does an edge create a cycle, in terms of the two nodes it joins? And why is the first edge that does so the right answer?",
+    "An edge closes a cycle exactly when its endpoints are already connected. A disjoint-set union (union-find) structure answers \"are these two in the same component?\" and merges components in nearly O(1).",
+    "parent[i] = i to start. For each edge, find both roots; if they're equal, return this edge. Otherwise attach the root of lower rank under the other. In find, point every node you pass straight at the root (path compression). The first edge whose endpoints already share a root is the last cycle edge in input order, because every other cycle edge came before it."
+  ],
+  "followups": [
+    "What does each optimisation buy you on its own? What happens to find on a long chain with neither path compression nor union by rank?",
+    "Solve it with DFS instead: what is the complexity if you check connectivity before adding each edge?",
+    "The directed version: each node has one parent except the root, plus one extra edge. What new cases appear?"
+  ],
+  "explain": "Process edges in input order with union-find. Each edge either merges two components or connects two nodes that are already in the same one, and that second case closes the cycle. The cycle's edges all appear in the input; the one processed last among them is the first to find its endpoints already connected, so returning it gives exactly the last removable edge. With path compression and union by rank each operation is O(α(n)), the inverse Ackermann function, which is at most 4 for any input size you'll meet, so the total is effectively O(n) with O(n) space. Write find iteratively (or with path halving: parent[x] = parent[parent[x]]) so a long chain can't overflow the stack before compression flattens it. Return the edge array itself so it keeps the input's [u, v] orientation.",
+  "tags": [
+    "union-find",
+    "path compression",
+    "cycle detection"
+  ]
+}

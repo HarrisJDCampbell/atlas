@@ -1,0 +1,54 @@
+{
+  "id": "level-order",
+  "title": "Binary Tree Level Order Traversal",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "statement": "Given the `root` of a binary tree, return its values **level by level**: a list whose first entry holds the root's value, whose second entry holds the values one level down, and so on. Within each level, list the values from left to right.\n\nReturn an empty list for an empty tree.\n\nTrees are written in level order with `null` for a missing child, e.g. `[3, 9, 20, null, null, 15, 7]`.",
+  "examples": [
+    {
+      "input": "root = [3, 9, 20, null, null, 15, 7]",
+      "output": "[[3], [9, 20], [15, 7]]"
+    },
+    {
+      "input": "root = [1]",
+      "output": "[[1]]"
+    },
+    {
+      "input": "root = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "0 ≤ number of nodes ≤ 10^5",
+    "-1000 ≤ Node.val ≤ 1000"
+  ],
+  "params": [
+    "root"
+  ],
+  "starter": "import java.util.*;\n\n/**\n * class TreeNode { int val; TreeNode left, right; }\n */\nclass Solution {\n    public List<List<Integer>> levelOrder(TreeNode root) {\n        return new ArrayList<>();\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "the queue holds at most one level plus the next"
+  },
+  "benchN": "number of nodes (a zigzag spine with leaves, height n/2)",
+  "bench": {
+    "min": 4096,
+    "max": 2097152
+  },
+  "hints": [
+    "Which data structure hands nodes back in the order you discovered them, so everything at depth d comes out before anything at depth d + 1?",
+    "Breadth-first search with a queue visits the tree level by level. The trick is knowing where one level ends: at the moment you start a level, the queue holds exactly that level and nothing else.",
+    "Push the root. While the queue isn't empty, read its size s, then poll exactly s nodes: record each value in a new list and enqueue its non-null children. Append that list and repeat."
+  ],
+  "followups": [
+    "Can you do it with depth-first search instead? How do you know which list a node belongs in?",
+    "How would you return the levels bottom-up, or zigzag (alternating left-to-right and right-to-left)?",
+    "How would you return just the rightmost value of each level — the view of the tree from the right side?"
+  ],
+  "explain": "Breadth-first search with an ArrayDeque. At the start of each round the queue contains exactly one level, so snapshot its size, poll that many nodes into a fresh list, and enqueue their children for the next round. Each node is enqueued and polled once: O(n) time, and O(w) extra space for the queue, where w is the widest level (up to about n/2 in a complete tree), plus the O(n) output. Use ArrayDeque rather than LinkedList (less overhead) and never the legacy Stack/Vector classes. The DFS alternative passes the depth down and appends to out.get(depth), creating the list when depth == out.size(); it's also O(n) but uses O(h) recursion stack.",
+  "tags": [
+    "bfs",
+    "queue"
+  ]
+}

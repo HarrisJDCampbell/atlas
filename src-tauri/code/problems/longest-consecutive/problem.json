@@ -1,0 +1,30 @@
+{
+  "id": "longest-consecutive",
+  "title": "Longest Consecutive Sequence",
+  "pattern": "hashing",
+  "difficulty": "medium",
+  "statement": "Given an unsorted array of integers `nums`, return the length of the longest run of **consecutive integer values** that all appear in `nums` — values `v, v+1, …, v+L-1`. Where they sit in the array doesn't matter, and a value that appears more than once still counts only once.\n\nAn empty array has answer `0`.\n\nYour algorithm must run in **O(n)** time, so sorting is out.",
+  "examples": [
+    { "input": "nums = [100, 4, 200, 1, 3, 2]", "output": "4" },
+    { "input": "nums = [0, 3, 7, 2, 5, 8, 4, 6, 0, 1]", "output": "9" },
+    { "input": "nums = [1, 0, 1, 2]", "output": "3" }
+  ],
+  "constraints": ["0 ≤ nums.length ≤ 10^5", "nums[i] can be any int, including Integer.MIN_VALUE and Integer.MAX_VALUE"],
+  "params": ["nums"],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int longestConsecutive(int[] nums) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "n" },
+  "benchN": "nums.length",
+  "bench": { "min": 1024, "max": 1048576 },
+  "hints": [
+    "Sorting would make runs adjacent, but costs O(n log n). If you could ask \"is v + 1 in the array?\" in O(1), how would you walk a run?",
+    "Put every value in a HashSet. Walking up from every element is still quadratic on one long run — so only start walking from a value that is the bottom of its run. How can you tell?",
+    "Build the set. For each value x in the set, skip it if x - 1 is also in the set. Otherwise count x, x+1, x+2, … while they're present and keep the maximum. Each value is visited by at most one walk, so the total is O(n). Watch x - 1 and x + 1 at the int limits."
+  ],
+  "followups": [
+    "Why is the total work O(n) even though there's a while loop inside a for loop?",
+    "Could you solve it with union-find instead? What would it cost?",
+    "What if numbers arrive as a stream and you must report the current longest run after each one?"
+  ],
+  "explain": "Put all values in a HashSet<Integer> (this also removes duplicates). A value x starts a run exactly when x - 1 is not in the set; from each start, step up through x+1, x+2, … while the set contains them, and track the longest length. Each value is stepped over by exactly one walk, the one from its run's start, so the nested loop is O(n) total: amortised analysis, the thing to say out loud. O(n) time, O(n) space. Java pitfalls: iterate the set, not the array, or duplicates of a long run's start redo the walk; and x - 1 wraps from Integer.MIN_VALUE to MAX_VALUE (and x + 1 the other way), which would glue the two extremes into one fake run, so guard it or work in long.",
+  "tags": ["hashset", "run start", "amortised analysis"]
+}

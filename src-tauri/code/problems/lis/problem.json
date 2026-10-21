@@ -1,0 +1,30 @@
+{
+  "id": "lis",
+  "title": "Longest Increasing Subsequence",
+  "pattern": "dp",
+  "difficulty": "medium",
+  "statement": "Given an integer array `nums`, return the length of its longest **strictly increasing subsequence**.\n\nA subsequence keeps the original order but may skip any elements, so it doesn't have to be contiguous. Strictly increasing means each element is greater than the one before it; equal neighbours don't count.\n\nOnly the length is needed, not the subsequence itself.",
+  "examples": [
+    { "input": "nums = [10, 9, 2, 5, 3, 7, 101, 18]", "output": "4" },
+    { "input": "nums = [0, 1, 0, 3, 2, 3]", "output": "4" },
+    { "input": "nums = [7, 7, 7, 7, 7]", "output": "1" }
+  ],
+  "constraints": ["1 ≤ nums.length ≤ 10^5", "-2^31 ≤ nums[i] ≤ 2^31 - 1"],
+  "params": ["nums"],
+  "starter": "class Solution {\n    public int lengthOfLIS(int[] nums) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n log n", "space": "n", "note": "The usual first answer is the O(n^2) DP (best[i] = 1 + max best[j] over j < i with nums[j] < nums[i]). It is correct and you should be able to write it, but it falls far behind on the larger benchmark sizes, and that gap is exactly why interviewers ask for the O(n log n) patience-sorting version as a follow-up." },
+  "benchN": "nums.length",
+  "bench": { "min": 1024, "max": 2097152 },
+  "hints": [
+    "Start with the O(n^2) idea: if you knew the longest increasing subsequence ending at every earlier index, how would you get the one ending at index i? Then ask what work in that inner loop is wasted.",
+    "For each possible length k, you only care about the smallest value that can end an increasing subsequence of length k: a smaller tail is always at least as easy to extend. Keep those tails in an array. It turns out to be sorted, which means you can binary search it.",
+    "Keep tails[] and its length len. For each x, binary search for the first index i in tails[0..len) with tails[i] ≥ x (≥, not >, because the subsequence must be strictly increasing). Set tails[i] = x, and if i == len, increase len. The answer is len. tails is not itself a valid subsequence; only its length is meaningful."
+  ],
+  "followups": [
+    "Return an actual longest increasing subsequence, not just its length. What do you have to store alongside tails?",
+    "How does the binary search change if the subsequence only needs to be non-decreasing?",
+    "Envelopes (w, h) can nest when both dimensions are strictly smaller. How do you find the longest nesting chain using this algorithm?"
+  ],
+  "explain": "The standard first answer is the O(n^2) DP: best[i] = 1 + max(best[j]) over j < i with nums[j] < nums[i], answer = max(best). The faster method keeps tails[k], the smallest value that ends any strictly increasing subsequence of length k + 1 seen so far. tails is strictly increasing, because a length-(k+1) subsequence contains a length-k one with a smaller end. For each x, binary search the first tail ≥ x and overwrite it with x. If x is bigger than every tail, append it, since it extends the longest run. Overwriting never loses an answer: it only lowers a tail, which makes future extensions easier, and it never changes how many lengths are reachable. Each element costs one O(log n) search, so the total is O(n log n) time and O(n) space. On the benchmark the O(n^2) version is fine at a few thousand elements and hopeless at a million, while this one is still well under a second. In Java, Arrays.binarySearch(tails, 0, len, x) works too: it returns -(insertionPoint) - 1 when x is absent and the index when it's present, and both are the slot to overwrite. Write the midpoint as (lo + hi) >>> 1 to avoid overflow.",
+  "tags": ["1-D dp", "binary search", "patience sorting"]
+}

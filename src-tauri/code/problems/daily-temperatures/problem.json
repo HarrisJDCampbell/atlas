@@ -1,0 +1,30 @@
+{
+  "id": "daily-temperatures",
+  "title": "Daily Temperatures",
+  "pattern": "stack",
+  "difficulty": "medium",
+  "statement": "`temperatures[i]` is the temperature recorded on day `i`.\n\nReturn an array `answer` of the same length where `answer[i]` is the number of days you must wait after day `i` until a **strictly warmer** day. If no later day is warmer, `answer[i]` is `0`.",
+  "examples": [
+    { "input": "temperatures = [30, 40, 35, 32, 50, 45]", "output": "[1, 3, 2, 1, 0, 0]" },
+    { "input": "temperatures = [60, 50, 40, 70]", "output": "[3, 2, 1, 0]" },
+    { "input": "temperatures = [20, 20, 20]", "output": "[0, 0, 0]" }
+  ],
+  "constraints": ["1 ≤ temperatures.length ≤ 10^5", "-10^9 ≤ temperatures[i] ≤ 10^9"],
+  "params": ["temperatures"],
+  "starter": "class Solution {\n    public int[] dailyTemperatures(int[] temperatures) {\n        return new int[0];\n    }\n}\n",
+  "target": { "time": "n", "space": "n" },
+  "benchN": "temperatures.length",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "The brute force scans forward from every day. When a warm day arrives, which earlier days does it answer all at once?",
+    "A new temperature resolves every still-waiting earlier day that is colder than it — and those are always the most recent waiting days. Keep the waiting days' indices on a stack; their temperatures never increase toward the top (a monotonic stack).",
+    "For each day i: while the stack is non-empty and the day on top is colder than today, pop it as j and set answer[j] = i - j. Then push i. Days left on the stack at the end keep answer 0."
+  ],
+  "followups": [
+    "Can you do it scanning right to left, using answers you've already computed to jump ahead?",
+    "How does the same idea give the next greater element in a circular array?",
+    "If temperatures were limited to 30..100, what other O(n · range) approach becomes possible?"
+  ],
+  "explain": "Keep a stack of indices of days that haven't yet seen a warmer day. Their temperatures are non-increasing from bottom to top, because any warmer day would already have popped the colder ones beneath it. For each new day i, pop every index j whose temperature is strictly lower and record answer[j] = i - j, then push i. Every index is pushed once and popped at most once, so the total work is O(n) even though there's a nested while loop; space is O(n) for the stack. Use strict < when popping, so equal temperatures keep waiting. In Java an int[] used as a stack (or ArrayDeque<Integer>) beats the legacy Stack class. Scanning forward from every day is O(n^2) on a falling sequence that only warms up at the very end.",
+  "tags": ["monotonic stack", "next greater element"]
+}

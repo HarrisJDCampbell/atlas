@@ -1,0 +1,53 @@
+{
+  "id": "merge-k-lists",
+  "title": "Merge k Sorted Lists",
+  "pattern": "heap",
+  "difficulty": "hard",
+  "statement": "You are given an array of `k` singly linked lists, `lists`. Each list is sorted in non-decreasing order, and any of them may be empty (`null`). Merge them all into **one** sorted linked list and return its head.\n\nReturn `null` if there are no nodes at all. You may reuse the existing nodes.",
+  "examples": [
+    {
+      "input": "lists = [[1, 4, 5], [1, 3, 4], [2, 6]]",
+      "output": "[1, 1, 2, 3, 4, 4, 5, 6]"
+    },
+    {
+      "input": "lists = [[], [1]]",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "0 ≤ k ≤ 10^4",
+    "0 ≤ total number of nodes ≤ 10^5",
+    "-10^4 ≤ Node.val ≤ 10^4",
+    "each list is sorted in non-decreasing order"
+  ],
+  "params": [
+    "lists"
+  ],
+  "starter": "/**\n * class ListNode { int val; ListNode next; }\n */\nclass Solution {\n    public ListNode mergeKLists(ListNode[] lists) {\n        return null;\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "n",
+    "note": "O(n log k); the bench uses k = n/8 lists"
+  },
+  "benchN": "total number of nodes (spread over k = n/8 lists)",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "The next node of the output is always the smallest current head among the k lists. How fast can you find that smallest head, again and again?",
+    "Scanning all k heads every step costs O(k) per node. A min-heap of list heads gives you the smallest in O(log k), and after you take a node, only its successor has to go back in.",
+    "PriorityQueue<ListNode> ordered by val (use Integer.compare). Offer every non-null head. Poll the smallest, append it to a dummy-headed tail, and offer its next if there is one. Repeat until the heap is empty."
+  ],
+  "followups": [
+    "Do it without a heap by merging lists in pairs, like the merge step of merge sort. Why is that also O(n log k), when merging them one after another into a growing result is O(n·k)?",
+    "What is the space cost of each approach, and can the pairwise version use O(1) extra space?",
+    "How would you merge k sorted files that are each too big to fit in memory?"
+  ],
+  "explain": "Keep a min-heap of the current head of each list. Repeatedly poll the smallest, append it to the output (a dummy head avoids the empty-result special case), and push that node's next. The heap never holds more than k nodes, so each of the n nodes costs O(log k): O(n log k) time, O(k) extra space. Divide and conquer gets the same bound with no heap: merge list pairs (0,1), (2,3), … and repeat, giving log k rounds of O(n) work each. The common slow answer merges each list into one growing result, which is O(n·k). In Java, write the comparator as (a, b) -> Integer.compare(a.val, b.val), because a.val - b.val overflows once values approach the int limits.",
+  "tags": [
+    "min-heap",
+    "k-way merge",
+    "divide and conquer"
+  ]
+}

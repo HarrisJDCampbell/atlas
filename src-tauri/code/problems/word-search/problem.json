@@ -1,0 +1,54 @@
+{
+  "id": "word-search",
+  "title": "Word Search",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "statement": "You are given a grid of letters `board` and a string `word`. Return `true` if `word` can be spelled by a path through the grid, and `false` otherwise.\n\nThe path starts at any cell and each next letter must come from a cell that shares an edge with the previous one (up, down, left or right, not diagonal). A single cell may be used **at most once** in the path.\n\nLetters are case-sensitive: `'a'` and `'A'` are different.",
+  "examples": [
+    {
+      "input": "board = [\"CATS\", \"ORED\", \"DOGX\"], word = \"CARED\"",
+      "output": "true"
+    },
+    {
+      "input": "board = [\"CATS\", \"ORED\", \"DOGX\"], word = \"DOGE\"",
+      "output": "true"
+    },
+    {
+      "input": "board = [\"CATS\", \"ORED\", \"DOGX\"], word = \"RAR\"",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 ≤ board.length, board[i].length ≤ 6",
+    "1 ≤ word.length ≤ 15",
+    "board and word contain only English letters"
+  ],
+  "params": [
+    "board",
+    "word"
+  ],
+  "starter": "class Solution {\n    public boolean exist(char[][] board, String word) {\n        return false;\n    }\n}\n",
+  "target": {
+    "time": "m·n·3^L",
+    "space": "L",
+    "note": "O(m·n·3^L) in the worst case for an m×n grid and a word of length L: each step after the first has at most 3 unvisited neighbours. No benchmark, because the cost is exponential in L and every correct backtracking solution shares it."
+  },
+  "benchN": "number of cells",
+  "bench": null,
+  "hints": [
+    "A path can start anywhere, and from each cell it can go four ways. What do you need to remember about the path so far so it never steps on a cell twice?",
+    "Depth-first search from every cell, matching one character per level. Track which cells are on the current path, and un-mark a cell when the search backs out of it, so other paths can still use it. That undo step is what makes it backtracking rather than plain DFS.",
+    "Write dfs(r, c, k): fail if (r, c) is off the grid or board[r][c] != word[k]; succeed if k is the last index. Otherwise temporarily overwrite board[r][c] with a sentinel like '#', try the four neighbours with k + 1, restore the letter, and return whether any neighbour succeeded. Call it from every cell with k = 0."
+  ],
+  "followups": [
+    "The grid is all 'A' and the word is \"AAAAAAAAAAAAAAB\". Your search explores a huge tree before failing. What cheap check up front would reject it instantly?",
+    "Now you are given a list of thousands of words to find in the same grid. Why is running this search once per word too slow, and what data structure fixes it?",
+    "Your recursion mutates the input board. When is that acceptable in an interview, and what would you use instead if it isn't?"
+  ],
+  "explain": "Backtracking DFS. From every cell, try to match word[0], then recursively match word[k + 1] in one of the four neighbours. To stop a path from reusing a cell, overwrite the current cell with a sentinel such as '#' before recursing and restore it afterward. Restoring is essential: a cell that is a dead end for one path may be needed by another. Return as soon as any path matches the last character, and short-circuit with || so you stop exploring once found. Time is O(m·n·3^L) in the worst case, because the first step has 4 directions and every later step has at most 3 (it can't go back). Space is O(L) for the recursion. Overwriting the board avoids allocating a visited array, but if you mustn't mutate the input, use a boolean[m][n] instead. Two practical prunings worth mentioning: reject immediately if the board doesn't contain enough of each letter in the word, and if the last letter of the word is rarer in the board than the first, search for the reversed word instead.",
+  "tags": [
+    "backtracking",
+    "grid DFS",
+    "visited marking"
+  ]
+}

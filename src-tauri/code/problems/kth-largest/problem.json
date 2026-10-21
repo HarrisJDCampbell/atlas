@@ -1,0 +1,51 @@
+{
+  "id": "kth-largest",
+  "title": "Kth Largest Element in an Array",
+  "pattern": "heap",
+  "difficulty": "medium",
+  "statement": "Given an unsorted integer array `nums` and an integer `k`, return the **kth largest** value in it, the value that would sit at position `k` (1-based) if the array were sorted from largest to smallest.\n\nDuplicates count separately: in `[7, 7, 1]` the 2nd largest is `7`.",
+  "examples": [
+    {
+      "input": "nums = [3, 2, 1, 5, 6, 4], k = 2",
+      "output": "5"
+    },
+    {
+      "input": "nums = [3, 2, 3, 1, 2, 4, 5, 5, 6], k = 4",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 ≤ k ≤ nums.length ≤ 10^5",
+    "-10^4 ≤ nums[i] ≤ 10^4"
+  ],
+  "params": [
+    "nums",
+    "k"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int findKthLargest(int[] nums, int k) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "n",
+    "note": "a size-k min-heap is O(n log k); sorting is O(n log n); quickselect averages O(n)"
+  },
+  "benchN": "nums.length (k = n/2)",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "You only care about the k largest values. If you kept just those, which of them would be the answer?",
+    "Keep a min-heap holding the k largest values seen so far. Its top is the smallest of them, which is exactly the kth largest. When a bigger value arrives, it pushes the top out.",
+    "PriorityQueue<Integer> (a min-heap by default). For each x, offer it, and if the size goes over k, poll. At the end, peek. The heap never holds more than k + 1 values."
+  ],
+  "followups": [
+    "Can you get O(n) average time? Explain quickselect with Lomuto or Hoare partitioning, and what its worst case is.",
+    "What if the numbers arrive as a stream and you have to report the kth largest after every new one?",
+    "When is the heap better than quickselect? Think about memory, streaming, and a k that is small compared with n."
+  ],
+  "explain": "Keep a min-heap of size k. Every value goes in, and whenever the heap grows past k the smallest is evicted, so afterwards it holds exactly the k largest values and its top is the kth largest. O(n log k) time, O(k) space. Sorting and indexing n - k is a fine O(n log n) first answer. The optimal answer is quickselect: partition around a random pivot and recurse only into the side that contains index n - k. That's O(n) on average, O(n^2) worst case (a random pivot makes the worst case unlikely), and O(1) extra space if done in place. In Java, PriorityQueue is a min-heap. For a max-heap pass Collections.reverseOrder(), and never write a comparator as (a, b) -> b - a, which overflows near the int limits.",
+  "tags": [
+    "min-heap",
+    "quickselect"
+  ]
+}

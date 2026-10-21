@@ -1,0 +1,50 @@
+{
+  "id": "min-stack",
+  "title": "Min Stack",
+  "pattern": "design",
+  "difficulty": "easy",
+  "statement": "Design a stack of integers that can also report its smallest element instantly.\n\nImplement `MinStack`:\n- `MinStack()` creates an empty stack.\n- `void push(int val)` puts `val` on top.\n- `void pop()` removes the top element.\n- `int top()` returns the top element without removing it.\n- `int getMin()` returns the smallest element currently in the stack.\n\nEvery method must run in **O(1)** time. `pop`, `top` and `getMin` are only called when the stack is non-empty.\n\nThe tests replay a list of operations: `ops[i]` is the method name and `args[i]` its arguments. The expected output has `null` for the constructor, `push` and `pop`.",
+  "examples": [
+    {
+      "input": "ops = [\"MinStack\", \"push\", \"push\", \"push\", \"getMin\", \"pop\", \"top\", \"getMin\"], args = [[], [4], [7], [2], [], [], [], []]",
+      "output": "[null, null, null, null, 2, null, 7, 4]"
+    }
+  ],
+  "constraints": [
+    "-2^31 ≤ val ≤ 2^31 - 1",
+    "up to 3·10^4 calls in total"
+  ],
+  "params": [
+    "ops",
+    "args"
+  ],
+  "classes": [
+    "MinStack"
+  ],
+  "starter": "import java.util.*;\n\nclass MinStack {\n\n    public MinStack() {\n\n    }\n\n    public void push(int val) {\n\n    }\n\n    public void pop() {\n\n    }\n\n    public int top() {\n        return 0;\n    }\n\n    public int getMin() {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "O(1) per operation; the benchmark times n operations"
+  },
+  "benchN": "number of operations",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "Keeping a single min variable works until you pop the minimum. What would you need to know at that moment to restore the previous minimum?",
+    "The minimum of the stack depends only on what's below the top. So when you push, you can record the minimum of the stack as it is right then, and that record never goes stale while the element sits there.",
+    "Store pairs {value, minimum at or below this element} on one ArrayDeque (or keep a second stack of minimums in step with the first). push computes min(val, current min); pop removes the pair; top and getMin read the two halves of the top pair."
+  ],
+  "followups": [
+    "Can you use less memory by pushing onto the min stack only when the new value is ≤ the current minimum? Why must that be ≤ and not <?",
+    "Can you do it with a single stack of longs and one min variable, storing an encoded difference instead of pairs?",
+    "How would you build a queue that supports getMin in amortised O(1)?"
+  ],
+  "explain": "The minimum of the stack is a function of everything below the top, and that part never changes while an element sits on it. So store, with each element, the minimum of the stack at the moment it was pushed: min(val, minimum of the element underneath). Popping simply reveals the previous entry's minimum, with nothing to recompute. Every operation is O(1), with O(n) space. In Java, use ArrayDeque instead of the legacy synchronized Stack class. If you use two Deque<Integer> stacks instead, compare with equals or unbox to int: == on two Integers above 127 compares references and silently breaks pop.",
+  "tags": [
+    "stack",
+    "auxiliary state"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "coin-change",
+  "title": "Coin Change",
+  "pattern": "dp",
+  "difficulty": "medium",
+  "statement": "You are given the coin denominations `coins` and a non-negative integer `amount`. You have an unlimited supply of every denomination.\n\nReturn the **smallest number of coins** whose values add up to exactly `amount`. If no combination of coins makes `amount`, return `-1`. Making `0` takes zero coins.",
+  "examples": [
+    { "input": "coins = [1, 2, 5], amount = 11", "output": "3" },
+    { "input": "coins = [2], amount = 3", "output": "-1" },
+    { "input": "coins = [1], amount = 0", "output": "0" }
+  ],
+  "constraints": ["1 ≤ coins.length ≤ 12", "1 ≤ coins[i] ≤ 2^31 - 1", "all coins are distinct", "0 ≤ amount ≤ 10^4"],
+  "params": ["coins", "amount"],
+  "starter": "class Solution {\n    public int coinChange(int[] coins, int amount) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "n", "note": "O(amount × coins.length). The benchmark fixes 8 coins and grows the amount, so it reads as linear in n = amount. Unmemoized recursion over every coin is exponential and won't finish." },
+  "benchN": "amount (coin set fixed at [186, 419, 83, 408, 97, 251, 333, 59])",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Always taking the biggest coin that fits is the obvious idea. Try it on coins [1, 3, 4] and amount 6. What goes wrong, and what does that tell you about needing to consider every coin?",
+    "If the last coin you use is c, the rest must be an optimal way to make amount - c. So fewest(a) = 1 + min over coins c ≤ a of fewest(a - c). Many amounts get asked about repeatedly, so compute each one once.",
+    "Make an array dp of size amount + 1, set dp[0] = 0 and everything else to a sentinel meaning impossible (amount + 1 works, since no answer needs more than amount coins). For a from 1 to amount, for each coin c ≤ a, take dp[a] = min(dp[a], dp[a - c] + 1). Return -1 if dp[amount] is still the sentinel."
+  ],
+  "followups": [
+    "Instead of the fewest coins, count the number of distinct ways to make the amount. Why does the order of your two loops suddenly matter?",
+    "Reconstruct which coins to use, not just how many.",
+    "Model it as a graph: amounts are nodes and coins are edges. What does breadth-first search from 0 give you, and when might it beat the table?"
+  ],
+  "explain": "Greedy fails (coins [1, 3, 4], amount 6: greedy gives 4+1+1, but 3+3 is better), so every coin has to be considered. Optimal substructure: if the last coin in an optimal answer is c, the rest is an optimal answer for amount - c. Bottom-up, dp[a] = 1 + min(dp[a - c]) over coins c ≤ a, with dp[0] = 0. Filling a from 1 to amount means every dp[a - c] is already final. That is O(amount × k) time for k coins and O(amount) space. Two Java traps: initialise with amount + 1, not Integer.MAX_VALUE, because MAX_VALUE + 1 overflows to a negative number and wins every min; and compare c <= a rather than computing a - c with a huge coin, which is why there's a test with a coin of 2^31 - 1. The top-down version (recursion plus a memo array) is equally correct; the plain recursion without a memo is exponential.",
+  "tags": ["1-D dp", "unbounded knapsack", "greedy counterexample"]
+}

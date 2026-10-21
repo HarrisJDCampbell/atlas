@@ -1,0 +1,57 @@
+{
+  "id": "unique-paths-obstacles",
+  "title": "Unique Paths II",
+  "pattern": "dp2",
+  "difficulty": "medium",
+  "statement": "A robot starts in the top-left cell of an `m x n` grid and wants to reach the bottom-right cell. On each move it goes either **one cell right** or **one cell down**.\n\nIn `obstacleGrid`, `1` marks a blocked cell and `0` an open one. The robot can never enter a blocked cell, including the start and the finish.\n\nReturn the number of different routes from the top-left to the bottom-right. If the start or finish is blocked, or no route exists, return `0`.",
+  "examples": [
+    {
+      "input": "obstacleGrid = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]]",
+      "output": "4"
+    },
+    {
+      "input": "obstacleGrid = [[0, 1], [1, 0]]",
+      "output": "0"
+    },
+    {
+      "input": "obstacleGrid = [[0, 0], [0, 0]]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "1 ≤ m, n",
+    "m · n ≤ 4·10^6",
+    "obstacleGrid[i][j] is 0 or 1",
+    "the answer fits in a signed 32-bit int"
+  ],
+  "params": [
+    "obstacleGrid"
+  ],
+  "starter": "class Solution {\n    public int uniquePathsWithObstacles(int[][] obstacleGrid) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "number of columns",
+    "note": "O(m·n) — linear in the number of cells"
+  },
+  "benchN": "number of cells (m · n)",
+  "bench": {
+    "min": 4096,
+    "max": 4194304
+  },
+  "hints": [
+    "The last move into any cell came either from the cell above it or from the cell to its left. How does that let you count routes into a cell from counts you already have?",
+    "Let ways[i][j] be the number of routes into cell (i, j). It's the sum of the two neighbours that can step into it, or 0 if the cell is blocked. Filling the grid row by row guarantees both neighbours are done before you need them.",
+    "Keep one array of length n for the current row. Start with ways[0] = 1. For each row, for each column j: if the cell is blocked set ways[j] = 0, otherwise add ways[j-1] (when j > 0). The old ways[j] is the cell above, so += does both additions. Return ways[n-1]."
+  ],
+  "followups": [
+    "Without obstacles, can you compute the answer in O(1) extra space with a formula?",
+    "What changes if the robot may also move diagonally down-right?",
+    "If the answer could be huge, how would you return it modulo 10^9 + 7, and where exactly does the mod go?"
+  ],
+  "explain": "Every route into an open cell ends with a step from the cell above or the cell to the left, and those two sets of routes don't overlap, so ways(i, j) = ways(i-1, j) + ways(i, j-1), and a blocked cell has 0. Filling row by row means both inputs are already final. A single int[n] works: before you update ways[j] it still holds the row above, and ways[j-1] already holds the current row, so ways[j] += ways[j-1] adds both. A blocked start sets ways[0] to 0 and correctly zeroes everything. O(m·n) time, O(n) space. Plain recursion recomputes the same cells over and over, which is exponential on a square grid; memoising it gives the same O(m·n) as the table.",
+  "tags": [
+    "grid dp",
+    "rolling array",
+    "counting paths"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "network-delay",
+  "title": "Network Delay Time",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "statement": "A network has `n` nodes labelled `1` to `n`. Each entry `times[i] = [u, v, w]` is a **directed** link: a signal sent from `u` reaches `v` after `w` time units.\n\nA signal is sent from node `k` at time 0 and spreads along every link. Return how long it takes until **every** node has received it, or `-1` if some node can never be reached.\n\nNo `(u, v)` pair appears twice, and there are no self-loops.",
+  "examples": [
+    {
+      "input": "times = [[2, 1, 1], [2, 3, 1], [3, 4, 1]], n = 4, k = 2",
+      "output": "2"
+    },
+    {
+      "input": "times = [[1, 2, 1]], n = 2, k = 1",
+      "output": "1"
+    },
+    {
+      "input": "times = [[1, 2, 1]], n = 2, k = 2",
+      "output": "-1"
+    }
+  ],
+  "constraints": [
+    "1 ≤ k ≤ n ≤ 10^5",
+    "0 ≤ times.length ≤ 2·10^5",
+    "1 ≤ u, v ≤ n, u ≠ v",
+    "0 ≤ w ≤ 100"
+  ],
+  "params": [
+    "times",
+    "n",
+    "k"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public int networkDelayTime(int[][] times, int n, int k) {\n        return 0;\n    }\n}\n",
+  "target": {
+    "time": "n log n",
+    "space": "n",
+    "note": "Dijkstra with a binary heap is O(E log E); the bench has n edges over n/4 nodes"
+  },
+  "benchN": "times.length (edges, over n/4 nodes)",
+  "bench": {
+    "min": 4096,
+    "max": 1048576
+  },
+  "hints": [
+    "The time a node receives the signal is the length of the shortest weighted path from k to it, and the answer is the largest of those. Why doesn't plain BFS find those shortest paths here?",
+    "With non-negative weights, Dijkstra's algorithm works: always settle the unsettled node with the smallest tentative distance, because no later path can beat it. A min-heap gives you that node quickly.",
+    "Build adjacency lists. dist[] starts at infinity, with dist[k] = 0. Push (k, 0) onto a PriorityQueue ordered by distance. Pop; if the popped distance is larger than dist[node], skip it (it's stale); otherwise relax each outgoing edge, pushing (v, newDist) when it improves. At the end, return -1 if any dist is still infinity, else the max."
+  ],
+  "followups": [
+    "Why does Dijkstra break with negative weights, and what would you use instead?",
+    "This uses lazy deletion (stale heap entries are skipped). What is a decrease-key, and why doesn't Java's PriorityQueue offer one?",
+    "With n ≤ 100 and a dense graph, would the O(V^2) array version of Dijkstra be faster? Why?"
+  ],
+  "explain": "Each node receives the signal at the time of its shortest weighted path from k, so run single-source shortest paths and take the maximum. If any node is unreachable, return -1. Weights are non-negative, so use Dijkstra. Keep a PriorityQueue of (node, distance). When a node is popped with its current best distance, that distance is final, because every other route costs at least as much. Relax its out-edges and push any improvement. Java's PriorityQueue has no decrease-key, so you push duplicates and skip stale entries whose popped distance exceeds dist[node]. That's O(E log E) = O(E log V) time and O(V + E) space. Order the heap with Integer.compare, and don't add to an infinite distance: only relax from nodes that were actually popped. BFS is wrong here because the fewest hops isn't the least time. Bellman-Ford's O(V·E) handles negative weights but is far slower.",
+  "tags": [
+    "dijkstra",
+    "shortest path",
+    "min-heap"
+  ]
+}

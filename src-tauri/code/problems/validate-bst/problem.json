@@ -1,0 +1,55 @@
+{
+  "id": "validate-bst",
+  "title": "Validate Binary Search Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "statement": "Given the `root` of a binary tree, decide whether it is a valid **binary search tree**.\n\nIt is valid when, for every node, every value in its left subtree is **strictly less** than the node's value, and every value in its right subtree is **strictly greater**. Equal values anywhere make it invalid. Node values can be any `int`, including `Integer.MIN_VALUE` and `Integer.MAX_VALUE`.\n\nTrees are written in level order with `null` for a missing child, e.g. `[3, 9, 20, null, null, 15, 7]`.",
+  "examples": [
+    {
+      "input": "root = [2, 1, 3]",
+      "output": "true"
+    },
+    {
+      "input": "root = [5, 1, 4, null, null, 3, 6]",
+      "output": "false"
+    },
+    {
+      "input": "root = [5, 4, 6, null, null, 3, 7]",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 ≤ number of nodes ≤ 10^4",
+    "-2^31 ≤ Node.val ≤ 2^31 - 1"
+  ],
+  "params": [
+    "root"
+  ],
+  "starter": "/**\n * class TreeNode { int val; TreeNode left, right; }\n */\nclass Solution {\n    public boolean isValidBST(TreeNode root) {\n        return false;\n    }\n}\n",
+  "target": {
+    "time": "n",
+    "space": "n",
+    "note": "O(h) recursion stack; the bench tree has height n/2"
+  },
+  "benchN": "number of nodes (a valid BST shaped as a zigzag spine, height n/2)",
+  "bench": {
+    "min": 4096,
+    "max": 2097152
+  },
+  "hints": [
+    "Checking that each node is bigger than its left child and smaller than its right child isn't enough. In the third example, which node breaks the rule, and which ancestor does it conflict with?",
+    "Each node has to lie inside an open interval (low, high) set by its ancestors: going left tightens the upper bound to the parent's value, going right tightens the lower bound. Equivalently, an in-order traversal of a valid BST is strictly increasing.",
+    "Recurse with (node, low, high), starting from no bounds. Fail if node.val ≤ low or ≥ high, then check the left subtree with (low, node.val) and the right with (node.val, high). Use long bounds or nullable Integer bounds, not Integer.MIN_VALUE / MAX_VALUE sentinels, because a node may hold those exact values."
+  ],
+  "followups": [
+    "Write it as an iterative in-order traversal that compares each value with the previous one. What do you store as the previous value before the first node?",
+    "What changes if duplicates are allowed, but only in the left subtree?",
+    "How would you find and fix a BST in which exactly two nodes have been swapped?"
+  ],
+  "explain": "Pass down the open interval each node must sit in. The root is unbounded; a left child inherits (low, parent) and a right child inherits (parent, high). A node outside its interval, or equal to a bound, makes the tree invalid. This is correct because the BST property is about whole subtrees, and the interval is exactly the set of values every ancestor permits. Each node is checked once: O(n) time, O(h) stack. The Java trap is the bounds. Starting with Integer.MIN_VALUE and MAX_VALUE as sentinels wrongly rejects a tree holding one of those values, so use long bounds (Long.MIN_VALUE, Long.MAX_VALUE) or null-means-unbounded Integer objects. The in-order alternative keeps the previous value in a nullable Integer or long for the same reason.",
+  "tags": [
+    "dfs",
+    "bounds",
+    "in-order"
+  ]
+}

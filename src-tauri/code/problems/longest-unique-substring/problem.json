@@ -1,0 +1,30 @@
+{
+  "id": "longest-unique-substring",
+  "title": "Longest Substring Without Repeating Characters",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "statement": "Given a string `s`, return the length of the longest **substring** (a contiguous block of characters) in which no character appears more than once.\n\nA subsequence that skips characters doesn't count. The empty string has answer `0`.",
+  "examples": [
+    { "input": "s = \"abcabcbb\"", "output": "3" },
+    { "input": "s = \"bbbbb\"", "output": "1" },
+    { "input": "s = \"pwwkew\"", "output": "3" }
+  ],
+  "constraints": ["0 ≤ s.length ≤ 5·10^4", "s consists of printable ASCII characters: letters, digits, symbols and spaces"],
+  "params": ["s"],
+  "starter": "class Solution {\n    public int lengthOfLongestSubstring(String s) {\n        return 0;\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "O(1) space because the alphabet is fixed at 128" },
+  "benchN": "s.length()",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "Suppose s[lo..hi] has no repeats and s[hi+1] is already in it. Do you need to start again from lo + 1, or do you know exactly how far lo has to move?",
+    "Keep a window [lo, hi] with no repeats and grow hi one character at a time. Remember the last index of every character (a HashMap, or an int[128] for ASCII). When s[hi] was last seen inside the window, jump lo to just past that index.",
+    "For each hi: lo = max(lo, last[s[hi]] + 1). The max matters: an old occurrence to the left of lo must not pull the window backwards (try \"abba\"). Then store last[s[hi]] = hi and update best = max(best, hi - lo + 1)."
+  ],
+  "followups": [
+    "Why do you need max(lo, …) when jumping? Give an input that breaks without it.",
+    "What changes if s can contain any Unicode character?",
+    "Generalise: the longest substring with at most k distinct characters."
+  ],
+  "explain": "Slide a window [lo, hi] that never contains a repeat. Advance hi one step at a time, and keep the most recent index of each character in an int[128] (a HashMap<Character, Integer> works for any alphabet). If s[hi] was last seen at position p ≥ lo, the window can't include both, so set lo = p + 1. Taking max(lo, p + 1) stops a stale occurrence from moving lo backwards, which is what \"abba\" tests. Record hi - lo + 1 after each step. Each index enters the window once and lo only ever moves right, so it's O(n) time and O(1) space for a fixed alphabet. The HashSet version that removes from the left one character at a time is also O(n), since every character is added and removed at most once. Restarting the scan from every index is O(n · alphabet).",
+  "tags": ["sliding window", "last-seen index", "hashmap"]
+}

@@ -1,0 +1,290 @@
+[
+  {
+    "id": "box-cache",
+    "topic": "autoboxing",
+    "title": "Integer cache: 127 vs 128",
+    "difficulty": "easy",
+    "explanation": "Autoboxing calls Integer.valueOf, which returns cached objects for -128..127, so two boxed 127s are the same object but two boxed 128s are not. == on two Integers compares references; only c == 128 unboxes because one side is a primitive. This passes every small test and fails on the big hidden one, so compare boxed values with .equals or unbox to int first.",
+    "output": "true\nfalse\ntrue\ntrue"
+  },
+  {
+    "id": "box-ternary-npe",
+    "topic": "autoboxing",
+    "title": "Ternary unboxing NPE",
+    "difficulty": "hard",
+    "explanation": "When one ternary branch is Integer and the other is the int literal 0, the whole expression's type is int, so the Integer branch is unboxed and null throws NullPointerException before the assignment happens. Making both branches Integer (Integer.valueOf(0)) keeps the result a reference and null passes through. It bites in code like `Integer v = useCache ? cache.get(k) : 0` when the key is missing: you expect null and get a crash.",
+    "output": "NullPointerException\nnull"
+  },
+  {
+    "id": "box-map-long-key",
+    "topic": "autoboxing",
+    "title": "Map<Long,…>.get(int)",
+    "difficulty": "medium",
+    "explanation": "Map.get and containsKey take an Object, so an int argument is boxed to Integer, and Integer.equals(Long) is always false. The lookup quietly returns null instead of failing to compile. Long.equals(1) is false for the same reason, while big == 1 unboxes and compares numbers. Cast the key to the map's exact key type before you look it up.",
+    "output": "null\none\nfalse\nfalse\ntrue"
+  },
+  {
+    "id": "box-null-unbox",
+    "topic": "autoboxing",
+    "title": "Unboxing a missing map value",
+    "difficulty": "easy",
+    "explanation": "map.get returns null for a missing key, and assigning that to an int unboxes it and throws NullPointerException. getOrDefault(k, 0) and merge(k, 1, Integer::sum) are the safe counting idioms: merge puts 1 the first time and adds after that, so two merges give 2. This is the most common crash in frequency-count solutions.",
+    "output": "NullPointerException\n1\n2"
+  },
+  {
+    "id": "box-count-compare",
+    "topic": "autoboxing",
+    "title": "Comparing counts from two maps",
+    "difficulty": "hard",
+    "explanation": "map.get returns an Integer, so m1.get(c) == m2.get(c) compares references. Counts of 1 or 2 come from the -128..127 cache and compare equal, but a count of 200 is boxed twice into two different objects. Your anagram check passes the examples and fails a long input. Use .equals, compare after unboxing to int, or compare whole maps with Map.equals.",
+    "output": "true\nfalse\ntrue\ntrue"
+  },
+  {
+    "id": "str-eq",
+    "topic": "strings",
+    "title": "String == and compile-time constants",
+    "difficulty": "medium",
+    "explanation": "String literals are interned, and \"hel\" + \"lo\" is a compile-time constant, so it is folded into the same interned literal. A final String variable initialised with a literal is a constant variable too, so fixed + \"lo\" is also folded. part + \"lo\" with a non-final variable is built at run time as a new object. intern() returns the pooled copy. In interviews, always use equals: whether == happens to work depends on how the string was made.",
+    "output": "true\nfalse\ntrue\ntrue\ntrue"
+  },
+  {
+    "id": "str-char-math",
+    "topic": "strings",
+    "title": "char + int and + left to right",
+    "difficulty": "easy",
+    "explanation": "char is a numeric type, so 'a' + 1 and 'a' + 'b' are int arithmetic (98 and 195), and println(int) prints the number. You need a (char) cast, or a String on the left, to get text. + groups left to right, so 1 + 2 adds first and only then concatenates with \"3\". Compound assignment c += 2 casts back to char for you. This is the `(char) ('a' + i)` pattern in every letter-count problem.",
+    "output": "98\nb\n195\nab\n3345\nc"
+  },
+  {
+    "id": "str-substring",
+    "topic": "strings",
+    "title": "substring bounds and immutability",
+    "difficulty": "easy",
+    "explanation": "substring(begin, end) includes begin and excludes end, and begin == length() is allowed and gives \"\". Strings are immutable: toUpperCase and replace return new strings, so calling them without assigning the result does nothing. A begin index greater than end throws StringIndexOutOfBoundsException, and indexOf returns -1 when nothing is found instead of throwing.",
+    "output": "el\ntrue\nhello\n-1\nStringIndexOutOfBoundsException"
+  },
+  {
+    "id": "str-builder",
+    "topic": "strings",
+    "title": "StringBuilder equals, reverse, append(char+int)",
+    "difficulty": "medium",
+    "explanation": "StringBuilder does not override equals, so two builders holding the same text are not equal. Compare their toString() results, or use compareTo (Java 11+). reverse, insert and append change the builder in place and return this, which is why r == a. append('a' + 1) receives an int and appends \"98\", a common bug when building a string from chars.",
+    "output": "false\ntrue\nba true\nxba1\n98"
+  },
+  {
+    "id": "str-split",
+    "topic": "strings",
+    "title": "split takes a regex",
+    "difficulty": "medium",
+    "explanation": "split's argument is a regular expression, so \".\" matches every character. Every token comes out empty, and since trailing empty strings are removed, the array has length 0. Escape it as \"\\\\.\". Trailing empty tokens are dropped but leading and middle ones stay, so splitting \" a  b \" on a single space gives a leading \"\" and a middle \"\". trim().split(\"\\\\s+\") is the safe way to split words.",
+    "output": "4\n0\n3\n[, a, , b]\n[a, b]"
+  },
+  {
+    "id": "int-overflow",
+    "topic": "integers & overflow",
+    "title": "MAX_VALUE + 1 and Math.abs(MIN_VALUE)",
+    "difficulty": "medium",
+    "explanation": "int arithmetic wraps around silently in two's complement, so MAX_VALUE + 1 is MIN_VALUE. MIN_VALUE has no positive counterpart, so its negation is itself and Math.abs(Integer.MIN_VALUE) stays negative. Widen to long before the operation, or use Math.addExact when you want a crash instead of a wrong answer. This breaks reverse-integer, atoi and abs-difference solutions.",
+    "output": "-2147483648\n-2147483648\ntrue\n2147483648\nArithmeticException"
+  },
+  {
+    "id": "int-div-mod",
+    "topic": "integers & overflow",
+    "title": "Integer division and % with negatives",
+    "difficulty": "medium",
+    "explanation": "Integer division truncates toward zero, so -7 / 2 is -3, and % takes the sign of the dividend, so -7 % 3 is -1. That is why `n % 2 == 1` is false for negative odd numbers: test `n % 2 != 0` instead. Math.floorMod gives the always-non-negative result you want for circular indexing. 1 / 2 is int division, giving 0, before the multiplication by 4.0 ever happens.",
+    "output": "3\n-3\n-1\n2\nfalse\n0.0"
+  },
+  {
+    "id": "int-long-mult",
+    "topic": "integers & overflow",
+    "title": "int * int stored in a long; mid overflow",
+    "difficulty": "medium",
+    "explanation": "n * n is computed in int and wraps before it is widened to long, so assigning the result to a long doesn't help. Cast one operand first: (long) n * n. In binary search, lo + hi overflows once both are large, giving a negative mid. lo + (hi - lo) / 2 never overflows, and (lo + hi) >>> 1 reads the wrapped sum as unsigned and still gives the right midpoint for non-negative lo and hi.",
+    "output": "1410065408\n10000000000\n-97483648\n2050000000\n2050000000"
+  },
+  {
+    "id": "int-comparator-sub",
+    "topic": "integers & overflow",
+    "title": "Comparator by subtraction",
+    "difficulty": "hard",
+    "explanation": "(x, y) -> x - y overflows when the values are far apart: MAX_VALUE - (-1) wraps to MIN_VALUE, so the comparator says MAX_VALUE is smaller than -1. The sort then produces a wrong order without any error. Integer.compare(x, y) (or Comparator.comparingInt) never overflows. Interviewers who see a - b in a comparator often ask about this.",
+    "output": "-2147483648\n[3, 2147483647, -2147483648, -5]\n[-2147483648, -5, 3, 2147483647]"
+  },
+  {
+    "id": "op-shift",
+    "topic": "operators",
+    "title": ">> vs >>> and shift distance",
+    "difficulty": "medium",
+    "explanation": ">> is an arithmetic shift that copies the sign bit, so -16 >> 2 is -4. >>> shifts in zeros, so it treats the int as unsigned. For an int, the shift distance is masked to its low 5 bits, so 1 << 32 is 1 << 0 = 1. Use 1L << 32 when you need bit 32. 1 << 31 is already MIN_VALUE, which matters when you build bitmasks for 32 or more items.",
+    "output": "-4\n15\n-2147483648\n1\n4294967296\n32"
+  },
+  {
+    "id": "op-compound",
+    "topic": "operators",
+    "title": "Compound assignment narrows silently",
+    "difficulty": "medium",
+    "explanation": "`b = b + 1` does not compile for a byte, but `b += 1` does, because compound assignment includes a hidden cast back to the left-hand type. 127 + 1 then wraps to -128, s += 1.7 truncates to 11, and i *= 2.5 truncates 12.5 to 12. The same rule is what makes `c += 32` on a char work for case conversion.",
+    "output": "-128\n11\n12\na"
+  },
+  {
+    "id": "op-increment",
+    "topic": "operators",
+    "title": "i = i++ and evaluation order",
+    "difficulty": "hard",
+    "explanation": "i++ evaluates to the old value, and then the assignment overwrites the increment, so i = i++ leaves i at 5. Java evaluates operands strictly left to right: j++ gives 5 (j becomes 6), then ++j gives 7. The left-hand array index is evaluated before the right-hand side, so a[idx++] = a[idx] + 1 writes to a[0] using a[1]. Keep side effects on separate lines in interview code.",
+    "output": "5\n12 7\n[21, 20, 30] 1"
+  },
+  {
+    "id": "op-short-circuit",
+    "topic": "operators",
+    "title": "&& vs & on booleans",
+    "difficulty": "easy",
+    "explanation": "&& and || skip the right operand when the left one already decides the result, which is what makes `arr.length > 0 && arr[0] == 1` a safe guard. & and | on booleans are logical but always evaluate both sides, so the call count is 2 and the guarded index throws ArrayIndexOutOfBoundsException. Put the bounds or null check on the left of &&.",
+    "output": "false\nfalse 1\nfalse 2\ntrue 1\nArrayIndexOutOfBoundsException"
+  },
+  {
+    "id": "col-remove-int",
+    "topic": "collections",
+    "title": "List.remove(int) vs remove(Object)",
+    "difficulty": "medium",
+    "explanation": "On a List<Integer>, remove(1) matches the remove(int index) overload exactly, so it removes the element at index 1, not the value 1. Choosing remove(Object) would need boxing, and overload resolution prefers an exact primitive match. Write remove(Integer.valueOf(x)) to remove by value. If the int is out of range, it throws IndexOutOfBoundsException instead of quietly doing nothing.",
+    "output": "[10, 30, 1]\n[10, 30]\nIndexOutOfBoundsException"
+  },
+  {
+    "id": "col-aslist",
+    "topic": "collections",
+    "title": "Arrays.asList is a fixed-size view",
+    "difficulty": "medium",
+    "explanation": "Arrays.asList wraps the array without copying it, so set() writes through to the array and array writes show up in the list. It has a fixed size, so add and remove throw UnsupportedOperationException. Wrap it in new ArrayList<>(...) when you need to change its size. Arrays.asList(int[]) gives a List<int[]> with one element, because generics can't hold primitives.",
+    "output": "z\n[z, y, c]\nUnsupportedOperationException\n1"
+  },
+  {
+    "id": "col-cme",
+    "topic": "collections",
+    "title": "Removing inside for-each",
+    "difficulty": "hard",
+    "explanation": "A for-each loop uses an Iterator, and changing the list directly makes the next next() call throw ConcurrentModificationException. The element is already gone by then, which is why the list prints without the 2. Removing the second-to-last element doesn't throw, because hasNext() sees cursor == size and the loop just stops. Use removeIf, an explicit Iterator's remove(), or a backwards index loop.",
+    "output": "ConcurrentModificationException\n[1, 3, 4]\n[1, 3]\n[1, 2, 4]"
+  },
+  {
+    "id": "col-pq-order",
+    "topic": "collections",
+    "title": "PriorityQueue toString is heap order",
+    "difficulty": "medium",
+    "explanation": "A PriorityQueue is a binary heap stored in an array. toString and iteration show that array, which only guarantees that the smallest element is first, not that everything is sorted. Only peek and poll respect priority, so poll repeatedly to get sorted order. Collections.reverseOrder() (or (a, b) -> Integer.compare(b, a)) makes a max-heap. Never use b - a for this.",
+    "output": "[1, 2, 4, 5, 3]\n1\n1 2 3 4 5\n5 4"
+  },
+  {
+    "id": "col-treemap-floor",
+    "topic": "collections",
+    "title": "TreeMap floor/ceiling/lower/higher",
+    "difficulty": "easy",
+    "explanation": "floorKey(k) is the greatest key ≤ k and ceilingKey(k) is the smallest key ≥ k. lowerKey and higherKey are the strict versions. All four return null when no such key exists, so `int x = m.floorKey(5)` would throw NullPointerException. headMap(k) excludes k and tailMap(k) includes it. Each call is O(log n), which is why TreeMap shows up in calendar, interval and stock-span problems.",
+    "output": "20 30\n20 10 30\nnull\n{10=a} {20=b, 30=c}\n10 c"
+  },
+  {
+    "id": "ref-pass-value",
+    "topic": "references & mutation",
+    "title": "Pass-by-value of references",
+    "difficulty": "easy",
+    "explanation": "Java always passes by value, and for objects the value is the reference. A method can mutate the object the caller sees (a[0] = 9, sb.append), but reassigning the parameter only changes its local copy. A primitive is copied, so bump(n) can't change n. To give a result back, return it, or mutate a holder such as an array or a field.",
+    "output": "[1, 2]\n[9, 2]\n1\nhi!"
+  },
+  {
+    "id": "ref-array-defaults",
+    "topic": "references & mutation",
+    "title": "Array default values",
+    "difficulty": "easy",
+    "explanation": "new arrays are always zero-filled: 0 for numeric types, false for boolean, 0.0 for double, '\\u0000' (0) for char, and null for any reference type, including String and Integer. Unboxing a null slot of an Integer[] throws NullPointerException. Local variables get no default, and reading one before you assign it is a compile error.",
+    "output": "[0, 0] false 0.0\n[null, null]\n0\nNullPointerException"
+  },
+  {
+    "id": "ref-2d-shared",
+    "topic": "references & mutation",
+    "title": "Shared rows in 2-D structures",
+    "difficulty": "medium",
+    "explanation": "Arrays.fill(grid, new int[3]) creates one row object and stores the same reference in every slot, so writing to one row changes all of them. Collections.nCopies does the same with its element. new int[3][3] allocates separate rows. clone() on a 2-D array is shallow: it copies the row references, so the copy and the original share rows. Copy each row with row.clone() or Arrays.copyOf.",
+    "output": "7 7\n0\n99\n[[1], [1]]"
+  },
+  {
+    "id": "ref-backtrack-copy",
+    "topic": "references & mutation",
+    "title": "Backtracking without copying the path",
+    "difficulty": "medium",
+    "explanation": "out.add(path) stores a reference to the single mutable path list, and backtracking keeps changing it until it ends up empty. That's why every saved \"subset\" prints as []. Taking a snapshot with new ArrayList<>(path) at the leaf fixes it. This is the most common bug in subsets, permutations and combination-sum.",
+    "output": "[[], [], [], []]\n[[], [2], [1], [1, 2]]"
+  },
+  {
+    "id": "oop-overload-static",
+    "topic": "oop & dispatch",
+    "title": "Overloading is compile-time, overriding is run-time",
+    "difficulty": "medium",
+    "explanation": "Which overload runs is decided at compile time from the static type of the argument, so describe(a) with `Animal a` picks describe(Animal) even though a is a Dog. Which override runs is decided at run time from the object, so a.sound() is \"woof\". With null, the compiler picks the most specific applicable overload, here describe(Dog).",
+    "output": "woof\nanimal\ndog\ndog\ndog"
+  },
+  {
+    "id": "oop-static-hiding",
+    "topic": "oop & dispatch",
+    "title": "Static methods hide, they don't override",
+    "difficulty": "medium",
+    "explanation": "Static methods are bound by the declared type at compile time, so p.who() calls Parent.who() even though p refers to a Child. That is called hiding, and putting @Override on a static method is a compile error. Instance methods dispatch on the run-time object, so p.me() is \"child\". Call static methods through the class name to avoid the confusion.",
+    "output": "parent\nchild\nchild\nchild"
+  },
+  {
+    "id": "oop-field-hiding",
+    "topic": "oop & dispatch",
+    "title": "Fields are not polymorphic",
+    "difficulty": "hard",
+    "explanation": "Field access uses the declared type, so ab.name reads A's field even though the object is a B, which has its own separate name field. Methods dispatch dynamically, so B's getName returns \"B\". C never overrides getName, so the inherited A.getName reads A.name and prints \"A\". Don't redeclare a parent's field in a subclass. Use one field plus getters.",
+    "output": "A\nB\nB\nA"
+  },
+  {
+    "id": "oop-equals-hashcode",
+    "topic": "oop & dispatch",
+    "title": "equals without hashCode",
+    "difficulty": "medium",
+    "explanation": "HashSet uses hashCode to find the bucket and only then calls equals. Without a hashCode override, two equal P objects get different identity hash codes, so contains misses. A List only uses equals, so it finds the object. Always override both, or use a record, which generates both from its components. Records make good HashMap keys for (row, col) pairs.",
+    "output": "true\nfalse\ntrue\ntrue"
+  },
+  {
+    "id": "oop-ctor-dispatch",
+    "topic": "oop & dispatch",
+    "title": "Overridden method called from a constructor",
+    "difficulty": "hard",
+    "explanation": "The superclass constructor runs before the subclass's field initialisers, but a call to an overridable method inside it still dispatches to the subclass. So Derived.describe runs while label is still null and n is still 0. Only after super() returns do the initialisers run, which is why the second line is correct. Don't call overridable methods from a constructor.",
+    "output": "Base sees null 0\nDerived sees set 5"
+  },
+  {
+    "id": "exc-finally-return",
+    "topic": "exceptions & control flow",
+    "title": "return in finally wins",
+    "difficulty": "medium",
+    "explanation": "finally always runs on the way out of a try, even after a return. A return inside finally replaces the try's pending return value, and it also throws away an in-flight exception, which is why g() returns 3 and \"boom\" disappears. In h(), the try body runs, finally prints, and then the saved return value comes out. Never return from finally.",
+    "output": "2\n3\ntry\nfinally\nfrom try"
+  },
+  {
+    "id": "exc-finally-value",
+    "topic": "exceptions & control flow",
+    "title": "What return captures before finally",
+    "difficulty": "hard",
+    "explanation": "`return x` evaluates x and saves that value before finally runs, so reassigning the local x in finally changes nothing. If the value is a reference, finally can still mutate the object it points to, so the caller sees 99. continue also passes through finally, so the 'f' is appended on every iteration, including the skipped one.",
+    "output": "1\n99\n0ff2f"
+  },
+  {
+    "id": "exc-twr-order",
+    "topic": "exceptions & control flow",
+    "title": "try-with-resources close order",
+    "difficulty": "medium",
+    "explanation": "Resources are opened in declaration order and closed in reverse order, and they are closed before any catch or finally block of the same try runs. So the resource is already closed by the time you handle the exception. If close() itself threw, that exception would be attached to the body's exception as suppressed, and the body's exception would still propagate.",
+    "output": "open a\nopen b\nclose b\nclose a\ncaught body\nfinally"
+  },
+  {
+    "id": "exc-div-zero",
+    "topic": "exceptions & control flow",
+    "title": "Division by zero: int vs double",
+    "difficulty": "easy",
+    "explanation": "Integer division by zero throws ArithmeticException, but floating-point division follows IEEE 754 and gives Infinity, or NaN for 0.0/0. NaN is not equal to anything, including itself, so use Double.isNaN. 0.1 + 0.2 isn't exactly 0.3 in binary floating point, so compare doubles with a tolerance, or keep money and counts in integer units.",
+    "output": "ArithmeticException\nInfinity\nfalse\nfalse\ntrue"
+  }
+]

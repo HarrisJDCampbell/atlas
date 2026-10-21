@@ -1,0 +1,29 @@
+{
+  "id": "product-except-self",
+  "title": "Product of Array Except Self",
+  "pattern": "hashing",
+  "difficulty": "medium",
+  "statement": "Given an integer array `nums`, return an array `answer` of the same length where `answer[i]` is the product of every element of `nums` **other than** `nums[i]`.\n\nYou may **not** use division, and your solution must run in **O(n)** time. The product of any subset of `nums` is guaranteed to fit in a 32-bit `int`.",
+  "examples": [
+    { "input": "nums = [1, 2, 3, 4]", "output": "[24, 12, 8, 6]" },
+    { "input": "nums = [-1, 1, 0, -3, 3]", "output": "[0, 0, 9, 0, 0]" }
+  ],
+  "constraints": ["2 ≤ nums.length ≤ 10^5", "-30 ≤ nums[i] ≤ 30", "every prefix and suffix product fits in an int"],
+  "params": ["nums"],
+  "starter": "class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        return new int[0];\n    }\n}\n",
+  "target": { "time": "n", "space": "1", "note": "O(1) extra space besides the output array" },
+  "benchN": "nums.length",
+  "bench": { "min": 4096, "max": 4194304 },
+  "hints": [
+    "answer[i] is (everything to the left of i) × (everything to the right of i). Can you know either of those for every i without recomputing it?",
+    "Precompute running products: prefix[i] = product of nums[0..i-1] and suffix[i] = product of nums[i+1..n-1]. Then answer[i] = prefix[i] · suffix[i]. That's two linear passes.",
+    "Use the output array as the prefix array in a left-to-right pass, then walk right-to-left carrying a single running suffix product and multiply it in. Zeros need no special handling."
+  ],
+  "followups": [
+    "Can you do it with O(1) extra space, not counting the output array?",
+    "If division were allowed, how would you handle one zero? Two zeros?",
+    "What changes if the products might overflow a long — how would you return the answers modulo 10^9 + 7?"
+  ],
+  "explain": "Split answer[i] into the product of everything left of i and everything right of i. Pass one, left to right: write the running prefix product into answer[i] before multiplying nums[i] into it. Pass two, right to left: keep a running suffix product, multiply it into answer[i], then multiply nums[i] into the suffix. Every element is touched twice, so it's O(n) time and O(1) extra space beyond the output. It needs no division, so zeros just work: one zero leaves a single non-zero entry and two zeros make everything zero. The brute force multiplies n-1 numbers for each i, which is O(n^2).",
+  "tags": ["prefix product", "suffix product", "two passes"]
+}

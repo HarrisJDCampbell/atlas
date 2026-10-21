@@ -1,0 +1,49 @@
+{
+  "id": "subsets",
+  "title": "Subsets",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "statement": "You are given an array `nums` of **distinct** integers. Return its power set: every possible subset, including the empty subset and `nums` itself.\n\nEach subset must appear exactly once. You may return the subsets in any order, and the elements inside each subset in any order.",
+  "examples": [
+    {
+      "input": "nums = [1, 2, 3]",
+      "output": "[[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]"
+    },
+    {
+      "input": "nums = [0]",
+      "output": "[[], [0]]"
+    }
+  ],
+  "constraints": [
+    "0 ≤ nums.length ≤ 10",
+    "-10 ≤ nums[i] ≤ 10",
+    "all values in nums are distinct"
+  ],
+  "params": [
+    "nums"
+  ],
+  "starter": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> subsets(int[] nums) {\n        return new ArrayList<>();\n    }\n}\n",
+  "target": {
+    "time": "n·2^n",
+    "space": "n",
+    "note": "Exponential by nature: there are 2^n subsets and copying each costs up to n, so O(n·2^n) is optimal. No benchmark, because timing can't tell two correct solutions apart."
+  },
+  "benchN": "nums.length",
+  "bench": null,
+  "hints": [
+    "For each element, you make exactly one decision about it. What is that decision, and how many total combinations of decisions are there?",
+    "Each element is either in or out, which gives a binary decision tree of depth n. Backtracking walks that tree with one mutable list: add an element, recurse, then remove it so the list is clean for the next branch.",
+    "Recurse with a start index. At each call, record a copy of the current list as a subset, then for every i from start to the end, append nums[i], recurse with i + 1, and remove the last element. Copying is essential: adding the live list itself would leave you with 2^n references to one empty list."
+  ],
+  "followups": [
+    "What changes if nums can contain duplicates and the output must still have no duplicate subsets?",
+    "Can you generate the subsets iteratively, without recursion? What about with bitmasks from 0 to 2^n - 1?",
+    "How would you return only the subsets of size k?"
+  ],
+  "explain": "Backtracking over a decision tree. The recursive call records the current partial list as a subset, then tries extending it with each element at or after a start index, recursing with i + 1 and undoing the append afterward. Using a start index means each subset is built in only one order, so there are no duplicates. There are 2^n subsets and each copy costs up to n, so time is O(n·2^n), which is optimal because that's the size of the output. Extra space is O(n) for the recursion and the working list, not counting the output. In Java, always add new ArrayList<>(cur), never cur itself, and remove by index (cur.remove(cur.size() - 1)): cur.remove(Integer) and cur.remove(int) are different overloads. An equally good answer is the iterative one: start with [[]] and, for each number, append a copy of every existing subset with that number added. The bitmask version maps each integer 0..2^n-1 to a subset.",
+  "tags": [
+    "backtracking",
+    "power set",
+    "recursion"
+  ]
+}
