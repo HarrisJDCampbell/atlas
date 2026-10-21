@@ -185,3 +185,12 @@ pub async fn launcher_icon(id: String) -> Result<Option<String>> {
         }
     }
 }
+
+/// A command-line tool by absolute path. Apps opened from the Dock or Finder get
+/// launchd's minimal PATH (no Homebrew), so bare names like "rg" aren't found there.
+pub(crate) fn find_bin(name: &str) -> std::path::PathBuf {
+    let mut c: Vec<std::path::PathBuf> =
+        std::env::var_os("PATH").map(|p| std::env::split_paths(&p).map(|d| d.join(name)).collect()).unwrap_or_default();
+    c.extend(["/opt/homebrew/bin", "/usr/local/bin"].map(|d| std::path::Path::new(d).join(name)));
+    c.into_iter().find(|p| p.is_file()).unwrap_or_else(|| name.into())
+}

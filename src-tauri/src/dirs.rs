@@ -409,8 +409,14 @@ fn tool_read(scope: &Path, rel: &str, start: usize) -> String {
     format!("{rel} (lines {}-{} of {})\n{}{more}", from + 1, to, all.len(), clip(&body, 14_000))
 }
 
+/// ripgrep, found even when launched from the Dock (see launch::find_bin).
+fn rg() -> std::process::Command {
+    static BIN: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+    std::process::Command::new(BIN.get_or_init(|| crate::launch::find_bin("rg")))
+}
+
 fn tool_search(scope: &Path, pattern: &str) -> String {
-    let mut cmd = std::process::Command::new("rg");
+    let mut cmd = rg();
     cmd.current_dir(scope).args(["-n", "-S", "--max-count", "4", "--max-columns", "180", "--max-filesize", "1M"]);
     for s in SKIP {
         cmd.arg("-g").arg(format!("!{s}"));
@@ -421,6 +427,7 @@ fn tool_search(scope: &Path, pattern: &str) -> String {
             let lines: Vec<&str> = s.lines().take(60).collect();
             if lines.is_empty() { format!("no matches for `{pattern}`") } else { lines.join("\n") }
         }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => "search unavailable: ripgrep isn't installed (brew install ripgrep)".into(),
         Err(e) => format!("search unavailable: {e}"),
     }
 }
@@ -466,7 +473,7 @@ pub fn keywords(q: &str) -> Vec<String> {
 }
 
 fn rg_base(scope: &Path) -> std::process::Command {
-    let mut cmd = std::process::Command::new("rg");
+    let mut cmd = rg();
     cmd.current_dir(scope).args(["--max-filesize", "1M"]);
     for s in SKIP {
         cmd.arg("-g").arg(format!("!{s}"));
@@ -520,7 +527,7 @@ fn prefetch(scope: &Path, question: &str) -> (Vec<String>, String) {
                 continue;
             }
         }
-        let o = std::process::Command::new("rg").current_dir(scope)
+        let o = rg().current_dir(scope)
             .args(["-n", "-i", "-C", "2", "--max-count", "8", "--max-columns", "200", "-e", &pattern, "--", file]).output();
         if let Ok(o) = o {
             out.push_str(&format!("\n### {file}\n{}\n", clip(&String::from_utf8_lossy(&o.stdout), 1800)));
@@ -532,14 +539,14 @@ fn prefetch(scope: &Path, question: &str) -> (Vec<String>, String) {
 /// The `span`-line window of `file` containing the most matches of `pattern`,
 /// returned as (first line, last line, numbered text).
 fn densest_window(scope: &Path, file: &str, pattern: &str, span: usize) -> Option<(usize, usize, String)> {
-    let o = std::process::Command::new("rg").current_dir(scope).args(["-n", "-i", "-e", pattern, "--", file]).output().ok()?;
-    let hits: Vec<usize> = String::from_utf8_lossy(&o.stdout).lines()
-        .filter_map(|l| l.split(':').next()?.parse().ok()).collect();
+    // One file, so match in-process rather than spawning ripgrep.
+    let re = regex::RegexBuilder::new(pattern).case_insensitive(true).build().ok()?;
+    let text = std::fs::read_to_string(scope.join(file)).ok()?;
+    let lines: Vec<&str> = text.lines().collect();
+    let hits: Vec<usize> = lines.iter().enumerate().filter(|(_, l)| re.is_match(l)).map(|(i, _)| i + 1).collect();
     if hits.is_empty() {
         return None;
     }
-    let text = std::fs::read_to_string(scope.join(file)).ok()?;
-    let lines: Vec<&str> = text.lines().collect();
     // Two-pointer sweep over sorted hit lines: O(hits).
     let (mut best, mut best_start, mut j) = (0, hits[0], 0);
     for i in 0..hits.len() {

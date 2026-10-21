@@ -222,7 +222,12 @@ fn save(cfg: &Config, path: &Path) -> Result<()> {
     if let Some(dir) = path.parent() {
         std::fs::create_dir_all(dir)?;
     }
-    std::fs::write(path, serde_json::to_string_pretty(cfg)?)?;
+    // Write-then-rename, so a concurrent load never reads a half-written file.
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let n = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let tmp = path.with_extension(format!("json.{}.{n}.tmp", std::process::id()));
+    std::fs::write(&tmp, serde_json::to_string_pretty(cfg)?)?;
+    std::fs::rename(tmp, path)?;
     Ok(())
 }
 

@@ -266,7 +266,7 @@ async fn fetch_page(run: &Run, url: &str) -> String {
 async fn video_transcript(run: &Run, url: &str) -> std::result::Result<(String, String), String> {
     let tmp = run.dir.join("video");
     std::fs::create_dir_all(&tmp).map_err(|e| e.to_string())?;
-    let out = tokio::process::Command::new("yt-dlp")
+    let out = tokio::process::Command::new(crate::launch::find_bin("yt-dlp"))
         .args(["--skip-download", "--no-simulate", "--write-subs", "--write-auto-subs", "--sub-langs", "en.*,en", "--sub-format", "vtt", "--print", "title", "-o"])
         .arg(tmp.join("%(id)s.%(ext)s"))
         .arg(url)

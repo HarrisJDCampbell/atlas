@@ -80,7 +80,7 @@ Problems are authored to [src-tauri/code/AUTHORING.md](src-tauri/code/AUTHORING.
 ## Requirements
 
 - macOS (it uses Mail.app, the Keychain and `open`)
-- [Rust](https://rustup.rs), Node 20+ and pnpm
+- [Rust](https://rustup.rs), Node 20+, pnpm and [ripgrep](https://github.com/BurntSushi/ripgrep) (`brew install ripgrep`, used by folder agents)
 - [Ollama](https://ollama.com) with `qwen3:14b` and `qwen3:8b` (`ollama pull qwen3:14b qwen3:8b`)
 - For CODE: a JDK 17+ (`brew install openjdk@17`)
 - Optional: Docker, for local [SearXNG](https://github.com/searxng/searxng) search (Missions) and
