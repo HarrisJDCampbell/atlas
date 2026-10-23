@@ -141,8 +141,9 @@ Decisions worth knowing:
 - **Folder agents are sandboxed.** Their read-only tools are confined to the folder in Rust: paths are
   canonicalised, and `..`, absolute paths and symlinks out are rejected.
 - **Retrieval is done for the model.** Rust ranks files by IDF-weighted keyword matches and hands over the
-  densest 200-line window. On a ground-truth question this took an 8B folder agent from 0/7 to 7/7, ahead of a
-  14B agent that had the whole repo.
+  densest 200-line window, so an 8B folder agent can work over a large repo inside a 16K-token context. How much
+  this helps is still being measured: an early single run looked promising but didn't reproduce, because files
+  with tied scores were ranked in random order.
 - **Nothing outward happens without a click.** Workflows that post, send or apply pause in an n8n Wait node until
   you approve (or edit) in Atlas. Resume URLs are pinned to the local n8n.
 
